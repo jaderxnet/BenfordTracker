@@ -14,18 +14,19 @@
   </style>
 </head>
 <body>
-<h2>Teste Algorítimo Benford</h2>
-<table>
-  <tbody>
-    <tr>
-      <td>
-        <div class="inputoutput">
-          <video id="videoInput"  width="600" height="450" type="file"  autoplay loop muted ></video>
-          <div class="caption">Selecione um vídeo para ser processado.
-            <input type="file" id="fileInputVideo" name="file" />
-            <button type="button" onclick="playSound()" id="audio">Play Audio</button>
-             <input id="slider" oninput="changeGain(0)" type="range" min="0" max="10" value="0" step="0.01">
-             Volume: <span id="volume"></span>
+  <h2>Teste Algorítimo Benford</h2>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <div class="inputoutput">
+            <div class="caption">
+              <button type="button" id="buttonCameraVideo">Usar câmera</button>
+              ou Selecione um vídeo. <input type="file" id="fileInputVideo" name="file" />
+              <!--
+              <input id="slider" oninput="mudarVolume(0)" type="range" min="0" max="10" value="0" step="0.01">
+              Volume: <span id="volume"></span>
+            -->
           </div>
         </div>
       </td>
@@ -44,45 +45,7 @@
 </table>
 
 <script>
-
-// The main global scope
-var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-var isPlaing = true;
-var oscilador = audioContext.createOscillator();
-var ganho = audioContext.createGain();
-var biguad = audioContext.createBiquadFilter();
-var slider = document.getElementById("slider");
-var output = document.getElementById("volume");
-output.innerHTML = slider.value;
-ganho.gain.value = slider.value;
-oscilador.connect(biguad);
-biguad.connect(ganho);
-ganho.connect(audioContext.destination);
-oscilador.start();
-
-function changeGain(volume) {
-  if(volume>10.0){
-    ganho.gain.value = volume/10;
-    output.innerHTML = volume/10;
-  }
-  if(volume<1.0){
-    ganho.gain.value = volume*10;
-    output.innerHTML = volume*10;
-  }
-}
-
-
-function playSound() {
-  if(isPlaing){
-    //oscilador.connect(biguad);
-    ganho.disconnect(audioContext.destination);
-    isPlaing = false;
-  } else {
-    //oscilador.disconnect(biguad);
-    isPlaing = true;
-    ganho.connect(audioContext.destination);
-  }
-}
+// Implementação de Benford Tracker -----------------------------------------------------------
 function BenfordTracker() {
 
   this.track = function(pixels, width, height) {
@@ -294,6 +257,7 @@ function BenfordTracker() {
 
 }
 
+//Implementação da Herança de BenfordTracker em relação a Traker da API tracking.js
 tracking.inherits(BenfordTracker, tracking.Tracker);;
 BenfordTracker.prototype.constructor = BenfordTracker;
 
@@ -301,6 +265,8 @@ var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 
 var myTracker = new BenfordTracker();
+
+//Tratamento de eventos recebidos já processados
 myTracker.on('track', function(event){
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.strokeStyle = "#000";
@@ -308,18 +274,70 @@ myTracker.on('track', function(event){
   context.fillStyle = "#000"
 
   if(event.data){
-    changeGain(event.data.get("triplo"));
+    mudarVolume(event.data.get("triplo"));
     context.fillText("Espacial: " + event.data.get("espacial"), 0 + 5, 0 + 22);
     context.fillText("Temporal: " + event.data.get("temporal"), 0 + 5, 10 + 22);
     context.fillText("Triplo: " + event.data.get("triplo"), 0 + 5, 20 + 22);
   }
 });
 
-function registrarElementosDoMapa(valor, chave, mapa) {
-  console.log(`m[${chave}] = ${valor}`);
+// Controes de Entrada --------------------------------------------------------
+//Exibir e processar o video da câmera  function capturaVideoWebCam
+let inputElementVideo1 = document.getElementById('buttonCameraVideo');
+inputElementVideo1.addEventListener('click', (e) => {
+  tracking.track('#myVideo', myTracker, { camera: true });
+}, false);
+//Exibir e processar video do armazenamento local
+let inputElementVideo2 = document.getElementById('fileInputVideo');
+inputElementVideo2.addEventListener('change', (e) => {
+  let videoTag = document.getElementById('myVideo');
+  videoTag.src=URL.createObjectURL(e.target.files[0]);
+  videoTag.play();
+  tracking.track('#myVideo', myTracker);
+}, false);
+// -------------------------------------------------------- Controes de Entrada
+
+// Controles de Som -----------------------------------------------------------
+var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+var isPlaing = false;
+var oscilador = audioContext.createOscillator();
+var ganho = audioContext.createGain();
+ganho.gain = 0;
+//var slider = document.getElementById("slider");
+//var output = document.getElementById("volume");
+oscilador.connect(ganho);
+ganho.connect(audioContext.destination);
+
+oscilador.start();
+
+function playSound() {
+  if(isPlaing){
+    //oscilador.connect(biguad);
+    ganho.disconnect(audioContext.destination);
+    isPlaing = false;
+  } else {
+    //oscilador.disconnect(biguad);
+    isPlaing = true;
+    ganho.connect(audioContext.destination);
+  }
 }
 
-tracking.track('#myVideo', myTracker, { camera: true });
+function mudarVolume(volume) {
+  if(volume>10.0){
+    ganho.gain.value = volume/10;
+    //output.innerHTML = volume/10;
+  }
+  if(volume<1.0){
+    ganho.gain.value = volume*10;
+    //output.innerHTML = volume*10;
+  }
+}
+// ----------------------------------------------------------- Controles de Som
+
+
+
+
+
 </script>
 </body>
 </html>
