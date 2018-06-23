@@ -13,17 +13,76 @@
   }
   </style>
 </head>
-<body
-<div class="demo-frame">
-  <div class="demo-container">
-    <video id="myVideo" width="400" height="300" preload autoplay loop muted></video>
-    <canvas id="canvas" width="400" height="300"></canvas>
-  </div>
-</div>
-
+<body>
+<h2>Teste Algorítimo Benford</h2>
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <div class="inputoutput">
+          <video id="videoInput"  width="600" height="450" type="file"  autoplay loop muted ></video>
+          <div class="caption">Selecione um vídeo para ser processado.
+            <input type="file" id="fileInputVideo" name="file" />
+            <button type="button" onclick="playSound()" id="audio">Play Audio</button>
+             <input id="slider" oninput="changeGain(0)" type="range" min="0" max="10" value="0" step="0.01">
+             Volume: <span id="volume"></span>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="demo-frame">
+          <div class="demo-container">
+            <video id="myVideo" width="400" height="300" preload autoplay loop muted></video>
+            <canvas id="canvas" width="400" height="300"></canvas>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 <script>
 
+// The main global scope
+var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+var isPlaing = true;
+var oscilador = audioContext.createOscillator();
+var ganho = audioContext.createGain();
+var biguad = audioContext.createBiquadFilter();
+var slider = document.getElementById("slider");
+var output = document.getElementById("volume");
+output.innerHTML = slider.value;
+ganho.gain.value = slider.value;
+oscilador.connect(biguad);
+biguad.connect(ganho);
+ganho.connect(audioContext.destination);
+oscilador.start();
+
+function changeGain(volume) {
+  if(volume>10.0){
+    ganho.gain.value = volume/10;
+    output.innerHTML = volume/10;
+  }
+  if(volume<1.0){
+    ganho.gain.value = volume*10;
+    output.innerHTML = volume*10;
+  }
+}
+
+
+function playSound() {
+  if(isPlaing){
+    //oscilador.connect(biguad);
+    ganho.disconnect(audioContext.destination);
+    isPlaing = false;
+  } else {
+    //oscilador.disconnect(biguad);
+    isPlaing = true;
+    ganho.connect(audioContext.destination);
+  }
+}
 function BenfordTracker() {
 
   this.track = function(pixels, width, height) {
@@ -234,6 +293,7 @@ function BenfordTracker() {
   }
 
 }
+
 tracking.inherits(BenfordTracker, tracking.Tracker);;
 BenfordTracker.prototype.constructor = BenfordTracker;
 
@@ -248,6 +308,7 @@ myTracker.on('track', function(event){
   context.fillStyle = "#000"
 
   if(event.data){
+    changeGain(event.data.get("triplo"));
     context.fillText("Espacial: " + event.data.get("espacial"), 0 + 5, 0 + 22);
     context.fillText("Temporal: " + event.data.get("temporal"), 0 + 5, 10 + 22);
     context.fillText("Triplo: " + event.data.get("triplo"), 0 + 5, 20 + 22);
