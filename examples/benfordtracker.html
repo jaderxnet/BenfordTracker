@@ -2,16 +2,26 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>tracking.js - first tracking</title>
+  <title>tracking.js - color with video</title>
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <!--<link rel="stylesheet" href="assets/demo.css">
+  <script src="../node_modules/dat.gui/build/dat.gui.min.js"></script>
+  <script src="assets/stats.min.js"></script>
+  <script src="assets/color_camera_gui.js"></script>-->
   <script src="../build/tracking-min.js"></script>
+
+
   <style>
   .demo-container {
     background-color: black;
   }
+
   video, canvas {
     position: absolute;
   }
   </style>
+</style>
 </head>
 <body>
   <h2>Teste Algorítimo Benford</h2>
@@ -35,16 +45,66 @@
       <td>
         <div class="demo-frame">
           <div class="demo-container">
-            <video id="myVideo" width="400" height="300" preload autoplay loop muted></video>
-            <canvas id="canvas" width="400" height="300"></canvas>
+            <video id="myVideo" width="800" height="500" preload autoplay loop muted></video>
+            <canvas id="canvas" width="800" height="500"></canvas>
           </div>
         </div>
+      </td>
+      <td>
+        <div id="triplo" style="width: 300px; height: 500px;"></div>
+        <div id="espacial" style="width: 300px; height: 500px;"></div>
+        <div id="temporal" style="width: 300px; height: 500px;"></div>
       </td>
     </tr>
   </tbody>
 </table>
 
 <script>
+
+// Load the Visualization API and the corechart package.
+google.charts.load('current', {'packages':['bar']});
+// Set a callback to run when the Google Visualization API is loaded.
+google.charts.setOnLoadCallback(drawStuff);
+// Callback that creates and populates a data table,
+// instantiates the pie chart, passes in the data and
+// draws it.
+function drawStuff() {
+  // Create the data table.
+  var data = new google.visualization.arrayToDataTable([
+    ['Número', 'Ocurrência'],
+    ["1", 30],
+    ["2", 22],
+    ["3", 18],
+    ["4", 13],
+    ["5", 8],
+    ["6", 6],
+    ["7", 4],
+    ['8', 3],
+    ['9', 1]
+  ]);
+
+  // Set chart options
+  var options = {
+    title: 'Gradiente Triplo de Benford',
+    width: 300,
+    legend: { position: 'none' },
+    chart: { title: 'Gradiente Triplo de Benford',
+    subtitle: 'Ocorrencia primeiro dígito por número' },
+    bars: 'vertical', // Required for Material Bar Charts.
+    axes: {
+      x: {
+        0: { side: 'down', label: 'Números'} // Top x-axis.
+      },
+      y: {
+        0: { side: 'left', label: 'Porcentágem'} // Top x-axis.
+      }
+    },
+    bar: { groupWidth: "90%" }
+  };
+  // Instantiate and draw our chart, passing in some options.
+  var chart = new google.charts.Bar(document.getElementById('triplo'));
+  chart.draw(data, options);
+};
 // Implementação de Benford Tracker -----------------------------------------------------------
 function BenfordTracker() {
 
@@ -225,10 +285,10 @@ function BenfordTracker() {
       for(let nivel = 0; nivel < maxFila; nivel++) {
         for(let indexFilaAtual = 0; indexFilaAtual < maxFila; indexFilaAtual++) {
           if (ocorrenciaNumerosEspacialPorFrame[indexFilaAtual][nivel]){
-            if (((ocorrenciaNumerosEspacialPorFrame[indexFilaAtual][nivel]/acumuladoTriplo)) > 0) {
-              diferencaEspacial += (ocorrenciaNumerosEspacialPorFrame[indexFilaAtual][nivel]/acumuladoTriplo);
+            if (((ocorrenciaNumerosEspacialPorFrame[indexFilaAtual][nivel]/acumuladoEspacial)) > 0) {
+              diferencaEspacial += (ocorrenciaNumerosEspacialPorFrame[indexFilaAtual][nivel]/acumuladoEspacial);
             } else {
-              diferencaEspacial -= (ocorrenciaNumerosEspacialPorFrame[indexFilaAtual][nivel]/acumuladoTriplo);
+              diferencaEspacial -= (ocorrenciaNumerosEspacialPorFrame[indexFilaAtual][nivel]/acumuladoEspacial);
             }
           }
         }
@@ -238,10 +298,10 @@ function BenfordTracker() {
       for(let nivel = 0; nivel < maxFila; nivel++) {
         for(let indexFilaAtual = 0; indexFilaAtual < maxFila; indexFilaAtual++) {
           if (ocorrenciaNumerosTemporalPorFrame[indexFilaAtual][nivel]){
-            if (((ocorrenciaNumerosTemporalPorFrame[indexFilaAtual][nivel]/acumuladoTriplo)) > 0) {
-              diferencaTemporal += (ocorrenciaNumerosTemporalPorFrame[indexFilaAtual][nivel]/acumuladoTriplo);
+            if (((ocorrenciaNumerosTemporalPorFrame[indexFilaAtual][nivel]/acumuladoTemporal)) > 0) {
+              diferencaTemporal += (ocorrenciaNumerosTemporalPorFrame[indexFilaAtual][nivel]/acumuladoTemporal);
             } else {
-              diferencaTemporal -= (ocorrenciaNumerosTemporalPorFrame[indexFilaAtual][nivel]/acumuladoTriplo);
+              diferencaTemporal -= (ocorrenciaNumerosTemporalPorFrame[indexFilaAtual][nivel]/acumuladoTemporal);
             }
           }
         }
@@ -274,10 +334,10 @@ myTracker.on('track', function(event){
   context.fillStyle = "#000"
 
   if(event.data){
-    mudarVolume(event.data.get("triplo"));
-    context.fillText("Espacial: " + event.data.get("espacial"), 0 + 5, 0 + 22);
-    context.fillText("Temporal: " + event.data.get("temporal"), 0 + 5, 10 + 22);
-    context.fillText("Triplo: " + event.data.get("triplo"), 0 + 5, 20 + 22);
+    mudarVolume(event.data.get("espacial"));
+    context.fillText("Espacial: " + event.data.get("espacial"), 0 + 5, 10 + 22);
+    context.fillText("Temporal: " + event.data.get("temporal"), 0 + 5, 20 + 22);
+    context.fillText("Triplo: " + event.data.get("triplo"), 0 + 5, 30 + 22);
   }
 });
 
@@ -286,6 +346,7 @@ myTracker.on('track', function(event){
 let inputElementVideo1 = document.getElementById('buttonCameraVideo');
 inputElementVideo1.addEventListener('click', (e) => {
   tracking.track('#myVideo', myTracker, { camera: true });
+  playSound();
 }, false);
 //Exibir e processar video do armazenamento local
 let inputElementVideo2 = document.getElementById('fileInputVideo');
@@ -294,6 +355,7 @@ inputElementVideo2.addEventListener('change', (e) => {
   videoTag.src=URL.createObjectURL(e.target.files[0]);
   videoTag.play();
   tracking.track('#myVideo', myTracker);
+  playSound();
 }, false);
 // -------------------------------------------------------- Controes de Entrada
 
@@ -306,7 +368,6 @@ ganho.gain = 0;
 //var slider = document.getElementById("slider");
 //var output = document.getElementById("volume");
 oscilador.connect(ganho);
-ganho.connect(audioContext.destination);
 
 oscilador.start();
 
@@ -335,8 +396,7 @@ function mudarVolume(volume) {
 // ----------------------------------------------------------- Controles de Som
 
 
-
-
+//initGUIControllers(myTracker);
 
 </script>
 </body>
