@@ -61,224 +61,197 @@
 
 <script>
 // Implementação de Benford Tracker -----------------------------------------------------------
-var maxFila = 9;
-var  filaValida = false;
-var  fila = [maxFila];
-var valoresBF = [maxFila];
-var indexFila = 0;
-var triploBF = [maxFila-1];
-var espacialBF = [maxFila];
-var temporalBF = [maxFila];
-var acumuladoTriplo = 0;
-var acumuladoEspacial = 0;
-var acumuladoTemporal;
-var ocorrenciaNumerosTriploPorFrame = [maxFila-1];
-var ocorrenciaNumerosEspacialPorFrame = [maxFila];
-var ocorrenciaNumerosTemporalPorFrame = [maxFila-1];
+var quantidadeFramesAmostra = 10;
+var valoresBenford = [9];
+var indiceFila = 0;
+var ocorrenciaTriploPorFrame = [quantidadeFramesAmostra-1];
+var ocorrenciaEspacialPorFrame = [quantidadeFramesAmostra-1];
+var ocorrenciaTemporalPorFrame = [quantidadeFramesAmostra-1];
+var frameAnterior = null;
+var  filaCheia = false;
 
-ocorrenciaNumerosTemporalPorFrame[0] = 10;
-ocorrenciaNumerosTemporalPorFrame[1] = 5;
+valoresBenford[0] = Math.log10(1.0+1.0/1.0);
+valoresBenford[1] = Math.log10(1.0+1.0/2.0);
+valoresBenford[2] = Math.log10(1.0+1.0/3.0);
+valoresBenford[3] = Math.log10(1.0+1.0/4.0);
+valoresBenford[4] = Math.log10(1.0+1.0/5.0);
+valoresBenford[5] = Math.log10(1.0+1.0/6.0);
+valoresBenford[6] = Math.log10(1.0+1.0/7.0);
+valoresBenford[7] = Math.log10(1.0+1.0/8.0);
+valoresBenford[8] = Math.log10(1.0+1.0/9.0);
+
 
 function BenfordTracker() {
 
   this.track = function(pixels, width, height) {
     // Your code here
     let gray = tracking.Image.grayscale(pixels, width, height, false);
+    zerarFilaOcorrencia();
+    processarFrame(gray, width, height);
 
-    processarFrameTriplo(gray, width, height);
-    processarFrameEspacial(gray, width, height);
-
-    //let results = matrizOcorrencias();
     let results = calcularOcorrencia();
     this.emit('track', {
       data: results
     });
   }
 
+  function zerarFilaOcorrencia(){
+    for(let x = 0; x < quantidadeFramesAmostra-1; ++x) {
+      ocorrenciaTriploPorFrame[x] = [9];
+      ocorrenciaTemporalPorFrame[x] = [9];
+      ocorrenciaEspacialPorFrame[x] = [9];
+      for(let y = 0; y < quantidadeFramesAmostra; ++y) {
+        ocorrenciaEspacialPorFrame[x][y] = 0.0;
+        ocorrenciaTemporalPorFrame[x][y] = 0.0;
+        ocorrenciaTriploPorFrame[x][y] = 0.0;
+      }
+    }
+  };
 
+/**
+Criar classe ProcessadorFrame posteriormente
+*/
+  function processarFrame( img, width, height ) {
+    let gradienteEspacial = 0;
+    let gradienteTemporal = 0;
+    let gradienteTriplo = 0;
 
-  valoresBF[0] = Math.log10(1.0+1.0/1.0);
-  valoresBF[1] = Math.log10(1.0+1.0/2.0);
-  valoresBF[2] = Math.log10(1.0+1.0/3.0);
-  valoresBF[3] = Math.log10(1.0+1.0/4.0);
-  valoresBF[4] = Math.log10(1.0+1.0/5.0);
-  valoresBF[5] = Math.log10(1.0+1.0/6.0);
-  valoresBF[6] = Math.log10(1.0+1.0/7.0);
-  valoresBF[7] = Math.log10(1.0+1.0/8.0);
-  valoresBF[8] = Math.log10(1.0+1.0/9.0);
-
-  let frameAnterior = null;
-  let quadradoEspacialX = null;
-  let quadradoEspacialY = null;
-  let filaNorma = [maxFila];
-  let contaOcorrenciaNumeroPrimeiroDigito = 0 ;
-  var normaEspacial = [maxFila];
-  var normaTemporal = [maxFila];
-  var normaTripla = [maxFila];
-
-  zerarFilaOcorrencia();
-  var  filaCheia = false;
-
-
-  function processarFrameEspacial(img, width, height) {
-    if(img){
+    if(img && frameAnterior){
+      let quadradoTemporal = 0;
+      let quadradoEspacialHorizontal = 0;
+      let quadradoEspacialVertical = 0;
+      let contaOcorrenciaNumeroPrimeiroDigito = 0 ;
       for (var index = 1; index < height*width-width; ++index) {
-        let gradienteEspacialX = img[index+1] - img[index];
-        let gradienteEspacialY = img[index+width] - img[index];
+        gradienteTemporal = img[index] - frameAnterior[index];
+        let gradienteEspacialHorizontal = img[index+1] - img[index];
+        let gradienteEspacialVertical = img[index+width] - img[index];
+        quadradoEspacialHorizontal = Math.pow(gradienteEspacialHorizontal, 2);
+        quadradoEspacialVertical = Math.pow(gradienteEspacialVertical, 2);
+        quadradoTemporal = Math.pow(gradienteTemporal, 2);
+        gradienteEspacial = Math.sqrt(quadradoEspacialHorizontal  + quadradoEspacialVertical);
+        gradienteTriplo = Math.sqrt( quadradoEspacialHorizontal + quadradoEspacialVertical + quadradoTemporal);
 
-        quadradoEspacialX = Math.pow(gradienteEspacialX, 2);
-        quadradoEspacialY = Math.pow(gradienteEspacialY, 2);
-        normaEspacial[indexFila] = Math.sqrt(quadradoEspacialX  + quadradoEspacialY);
 
-        if (normaEspacial[indexFila] > 0.001) {//se a norma espacial for significativa
-          if(normaEspacial[indexFila] > 100) {
-            contaOcorrenciaNumeroPrimeiroDigito = (normaEspacial[indexFila]-normaEspacial[indexFila]%100)/100;
-          } else if (normaEspacial[indexFila] > 10) {
-            contaOcorrenciaNumeroPrimeiroDigito = (normaEspacial[indexFila]-normaEspacial[indexFila]%10)/10;
+        if (gradienteEspacial > 0.001) {//se a norma espacial for significativa conta o primeiro digito encontrado
+          if(gradienteEspacial > 100) {
+            contaOcorrenciaNumeroPrimeiroDigito = (gradienteEspacial-gradienteEspacial%100)/100;
+          } else if (gradienteEspacial > 10) {
+            contaOcorrenciaNumeroPrimeiroDigito = (gradienteEspacial-gradienteEspacial%10)/10;
           } else {
-            contaOcorrenciaNumeroPrimeiroDigito = normaEspacial[indexFila]-normaEspacial[indexFila]%1;
+            contaOcorrenciaNumeroPrimeiroDigito = gradienteEspacial-gradienteEspacial%1;
+          }//crescenta +1 na ocorrencia do número no frame
+          ocorrenciaEspacialPorFrame[indiceFila][contaOcorrenciaNumeroPrimeiroDigito-1]++;
+        }
+
+        if (gradienteTemporal > 0.001) {//se a norma espacial for significativa
+          if(gradienteTemporal > 100) {
+            contaOcorrenciaNumeroPrimeiroDigito = (gradienteTemporal-gradienteTemporal%100)/100;
+          } else if (gradienteTemporal > 10) {
+            contaOcorrenciaNumeroPrimeiroDigito = (gradienteTemporal-gradienteTemporal%10)/10;
+          } else {
+            contaOcorrenciaNumeroPrimeiroDigito = gradienteTemporal-gradienteTemporal%1;
           }
-          ocorrenciaNumerosEspacialPorFrame[indexFila][contaOcorrenciaNumeroPrimeiroDigito-1]++;
+          ocorrenciaTemporalPorFrame[indiceFila][contaOcorrenciaNumeroPrimeiroDigito-1]++;
+        }
+
+        if (gradienteTriplo > 0.001) {//se a norma espacial for significativa
+          if(gradienteTriplo > 100) {
+            contaOcorrenciaNumeroPrimeiroDigito = (gradienteTriplo-gradienteTriplo%100)/100;
+          } else if (gradienteTemporal > 10) {
+            contaOcorrenciaNumeroPrimeiroDigito = (gradienteTriplo-gradienteTriplo%10)/10;
+          } else {
+            contaOcorrenciaNumeroPrimeiroDigito = gradienteTriplo-gradienteTriplo%1;
+          }
+          ocorrenciaTriploPorFrame[indiceFila][contaOcorrenciaNumeroPrimeiroDigito-1]++;
         }
       }
+      if(!filaCheia && (indiceFila >= quantidadeFramesAmostra-2)){
+        filaCheia = true;
+      }
+      indiceFila++;
+      indiceFila = indiceFila%(quantidadeFramesAmostra-1);
 
+    } else {
       frameAnterior = img;
       img = null;
     }
   };
 
-  function processarFrameTriplo( img, width, height ) {
-    if(frameAnterior){
-      for (var index = 1; index < height*width-width; ++index) {
-        normaTemporal[indexFila] = img[index] - frameAnterior[index];
-        let quadradoTemporal = Math.pow(normaTemporal[indexFila], 2);
-        normaTripla[indexFila] = Math.sqrt( quadradoEspacialX + quadradoEspacialY + quadradoTemporal);
-
-        if (normaTemporal[indexFila] > 0.001) {//se a norma espacial for significativa
-          if(normaTemporal[indexFila] > 100) {
-            contaOcorrenciaNumeroPrimeiroDigito = (
-              [indexFila]-normaTemporal[indexFila]%100)/100;
-          } else if (normaTemporal[indexFila] > 10) {
-            contaOcorrenciaNumeroPrimeiroDigito = (normaTemporal[indexFila]-normaTemporal[indexFila]%10)/10;
-          } else {
-            contaOcorrenciaNumeroPrimeiroDigito = normaTemporal[indexFila]-normaTemporal[indexFila]%1;
-          }
-          ocorrenciaNumerosTemporalPorFrame[indexFila][contaOcorrenciaNumeroPrimeiroDigito-1]++;
-        }
-
-        if (normaTripla[indexFila] > 0.001) {//se a norma espacial for significativa
-          if(normaTripla[indexFila] > 100) {
-            contaOcorrenciaNumeroPrimeiroDigito = (normaTripla[indexFila]-normaTripla[indexFila]%100)/100;
-          } else if (normaTripla[indexFila] > 10) {
-            contaOcorrenciaNumeroPrimeiroDigito = (normaTripla[indexFila]-normaTripla[indexFila]%10)/10;
-          } else {
-            contaOcorrenciaNumeroPrimeiroDigito = normaTripla[indexFila]-normaTripla[indexFila]%1;
-          }
-          ocorrenciaNumerosTriploPorFrame[indexFila][contaOcorrenciaNumeroPrimeiroDigito-1]++;
-        }
-      }
-
-      indexFila += 1
-      if(!filaCheia && indexFila >= maxFila){
-        filaCheia = true;
-      }
-      indexFila = indexFila%maxFila;
-    }
-  };
-
-  function zerarFilaOcorrencia(){
-    for(let x = 0; x < maxFila; ++x) {
-      ocorrenciaNumerosEspacialPorFrame[x] = [9];
-      ocorrenciaNumerosTemporalPorFrame[x] = [9];
-      ocorrenciaNumerosTriploPorFrame[x] = [9];
-      temporalBF[x] = 0;
-      espacialBF[x] = 0;
-      triploBF[x] = 0;
-      for(let y = 0; y < maxFila; ++y) {
-        ocorrenciaNumerosEspacialPorFrame[x][y] = 0;
-        ocorrenciaNumerosTemporalPorFrame[x][y] = 0;
-        ocorrenciaNumerosTriploPorFrame[x][y] = 0;
-      }
-    }
-  };
-
-  function matrizOcorrencias(){
-    if(filaCheia){
-      let mapaOcorrencia = new Map();
-      mapaOcorrencia.set("espacial", ocorrenciaNumerosEspacialPorFrame);
-      mapaOcorrencia.set("temporal", ocorrenciaNumerosTemporalPorFrame);
-      mapaOcorrencia.set("triplo", ocorrenciaNumerosTriploPorFrame);
-      return mapaOcorrencia;
-    }
-  };
+  diferencaTripla = 0.0;
+  diferencaEspacial = 0.0;
+  diferencaTemporal = 0.0;
 
   function calcularOcorrencia(){
     if(filaCheia){
       let acumuladoTriplo = 0;
       let acumuladoEspacial = 0;
       let acumuladoTemporal = 0;
-      let diferencaTripla = 0.0;
-      let diferencaEspacial = 0.0;
-      let diferencaTemporal = 0.0;
-      for(let x = 0; x < maxFila; ++x) {
-        for(let y = 0; y < maxFila; ++y) {
-          if(ocorrenciaNumerosEspacialPorFrame[x][y]){
-            acumuladoEspacial += ocorrenciaNumerosEspacialPorFrame[x][y];
-            espacialBF[y] +=  ocorrenciaNumerosEspacialPorFrame[x][y];
+      let acumuladoTriploPorNumero = [9];
+      let acumuladoEspacialPorNumero = [9];
+      let acumuladoTemporalPorNumero = [9];
+
+      for(let x = 0; x < quantidadeFramesAmostra-1; ++x) {
+        for(let y = 0; y < 9; ++y) {
+          if(ocorrenciaEspacialPorFrame[x][y]){
+            acumuladoEspacial += ocorrenciaEspacialPorFrame[x][y];
+            acumuladoEspacialPorNumero[y] += ocorrenciaEspacialPorFrame[x][y];
           }
-          if(ocorrenciaNumerosTemporalPorFrame[x][y]){
-            acumuladoTemporal += ocorrenciaNumerosTemporalPorFrame[x][y];
-            temporalBF[y] += ocorrenciaNumerosTemporalPorFrame[x][y]
+          if(ocorrenciaTemporalPorFrame[x][y]){
+            acumuladoTemporal += ocorrenciaTemporalPorFrame[x][y];
+            acumuladoTemporalPorNumero[y] += ocorrenciaTemporalPorFrame[x][y];
           }
-          if(ocorrenciaNumerosTriploPorFrame[x][y]){
-            acumuladoTriplo += ocorrenciaNumerosTriploPorFrame[x][y];
-            triploBF[y] += ocorrenciaNumerosTriploPorFrame[x][y]
+          if(ocorrenciaTriploPorFrame[x][y]){
+            acumuladoTriplo += ocorrenciaTriploPorFrame[x][y];
+            acumuladoTriploPorNumero[y] += ocorrenciaTriploPorFrame[x][y];
           }
         }
       }
 
-      for(let nivel = 0; nivel < maxFila; nivel++) {
-        for(let indexFilaAtual = 0; indexFilaAtual < maxFila; indexFilaAtual++) {
-          if (ocorrenciaNumerosTriploPorFrame[indexFilaAtual][nivel]){
-            if (((ocorrenciaNumerosTriploPorFrame[indexFilaAtual][nivel]/acumuladoTriplo)) > 0) {
-              diferencaTripla += (ocorrenciaNumerosTriploPorFrame[indexFilaAtual][nivel]/acumuladoTriplo);
+      for(let nivel = 0; nivel < 9; nivel++) {
+        if (acumuladoEspacialPorNumero[nivel]){
+            if (((acumuladoEspacialPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]) > 0) {
+              diferencaTripla += ((acumuladoEspacialPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]);
             } else {
-              diferencaTripla -= (ocorrenciaNumerosTriploPorFrame[indexFilaAtual][nivel]/acumuladoTriplo);
+              diferencaTripla -= ((acumuladoEspacialPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]);
             }
-          }
         }
       }
 
       diferencaTripla /= 2;
-      for(let nivel = 0; nivel < maxFila; nivel++) {
-        for(let indexFilaAtual = 0; indexFilaAtual < maxFila; indexFilaAtual++) {
-          if (ocorrenciaNumerosEspacialPorFrame[indexFilaAtual][nivel]){
-            if (((ocorrenciaNumerosEspacialPorFrame[indexFilaAtual][nivel]/acumuladoEspacial)) > 0) {
-              diferencaEspacial += (ocorrenciaNumerosEspacialPorFrame[indexFilaAtual][nivel]/acumuladoEspacial);
+      for(let nivel = 0; nivel < quantidadeFramesAmostra; nivel++) {
+          if (acumuladoTriploPorNumero[nivel]){
+            if (((acumuladoTriploPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]) > 0) {
+              diferencaEspacial += ((acumuladoTriploPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]);
             } else {
-              diferencaEspacial -= (ocorrenciaNumerosEspacialPorFrame[indexFilaAtual][nivel]/acumuladoEspacial);
+              diferencaEspacial -= ((acumuladoTriploPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]);
             }
           }
-        }
       }
 
       diferencaTemporal /= 2;
-      for(let nivel = 0; nivel < maxFila; nivel++) {
-        for(let indexFilaAtual = 0; indexFilaAtual < maxFila; indexFilaAtual++) {
-          if (ocorrenciaNumerosTemporalPorFrame[indexFilaAtual][nivel]){
-            if (((ocorrenciaNumerosTemporalPorFrame[indexFilaAtual][nivel]/acumuladoTemporal)) > 0) {
-              diferencaTemporal += (ocorrenciaNumerosTemporalPorFrame[indexFilaAtual][nivel]/acumuladoTemporal);
+      for(let nivel = 0; nivel < 9; nivel++) {
+          if (acumuladoTemporalPorNumero[nivel]){
+            if (((acumuladoTemporalPorNumero[nivel]/acumuladoTemporal)-valoresBenford[nivel]) > 0) {
+              diferencaTemporal += ((acumuladoTemporalPorNumero[nivel]/acumuladoTemporal)-valoresBenford[nivel]);
             } else {
-              diferencaTemporal -= (ocorrenciaNumerosTemporalPorFrame[indexFilaAtual][nivel]/acumuladoTemporal);
+              diferencaTemporal -= ((acumuladoTemporalPorNumero[nivel]/acumuladoTemporal)-valoresBenford[nivel]);
             }
           }
-        }
       }
 
       let mapaOcorrencia = new Map();
-      mapaOcorrencia.set("espacial", diferencaEspacial.toFixed(2));
-      mapaOcorrencia.set("temporal", diferencaTemporal.toFixed(2));
-      mapaOcorrencia.set("triplo", diferencaTripla.toFixed(2));
+      mapaOcorrencia.set("direfencaEspacial", diferencaEspacial.toFixed(2));
+      mapaOcorrencia.set("diferencaTemporal", diferencaTemporal.toFixed(2));
+      mapaOcorrencia.set("diferencaTriplo", diferencaTripla.toFixed(2));
+      mapaOcorrencia.set("espacialPorFrame", ocorrenciaEspacialPorFrame);
+      mapaOcorrencia.set("temporalPorFrame", ocorrenciaTemporalPorFrame);
+      mapaOcorrencia.set("triploPorFrame", ocorrenciaTriploPorFrame);
+      mapaOcorrencia.set("acumuladoEspacial", acumuladoEspacial);
+      mapaOcorrencia.set("acumuladotemporal", acumuladoTemporal);
+      mapaOcorrencia.set("acumuladotriplo", acumuladoTriplo);
+      mapaOcorrencia.set("acumuladoEspacialPorNumero", acumuladoEspacialPorNumero);
+      mapaOcorrencia.set("acumuladotemporalPorNumero", acumuladoTemporalPorNumero);
+      mapaOcorrencia.set("acumuladotriploPorNumero", acumuladoTriploPorNumero);
       return mapaOcorrencia;
     }
   }
@@ -299,16 +272,8 @@ function drawStuff() {
   // Create the data table.
   var data = new google.visualization.arrayToDataTable([
     ['Número', 'Ocurrência'],
-    ["1", temporalBF[0]],
-    ["2", temporalBF[1]],
-    ["3", temporalBF[2]],
-    ["4", temporalBF[3]],
-    ["5", temporalBF[4]],
-    ["6", temporalBF[5]],
-    ["7", temporalBF[6]],
-    ['8', temporalBF[7]],
-    ['9', temporalBF[8]]
-  ]);
+    ["Difereça Tripla", diferencaTripla]
+]);
 
   // Set chart options
   var options = {
