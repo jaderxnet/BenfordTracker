@@ -10,8 +10,6 @@
   <script src="assets/stats.min.js"></script>
   <script src="assets/color_camera_gui.js"></script>-->
   <script src="../build/tracking-min.js"></script>
-
-
   <style>
   .demo-container {
     background-color: black;
@@ -45,8 +43,8 @@
       <td>
         <div class="demo-frame">
           <div class="demo-container">
-            <canvas id="canvas" width="800" height="500"></canvas>
             <video id="myVideo" width="800" height="500" preload autoplay loop muted></video>
+            <canvas id="canvas" width="800" height="500"></canvas>
           </div>
         </div>
       </td>
@@ -69,6 +67,7 @@ var ocorrenciaEspacialPorFrame = [quantidadeFramesAmostra-1];
 var ocorrenciaTemporalPorFrame = [quantidadeFramesAmostra-1];
 var frameAnterior = null;
 var  filaCheia = false;
+var results = null;
 
 valoresBenford[0] = Math.log10(1.0+1.0/1.0);
 valoresBenford[1] = Math.log10(1.0+1.0/2.0);
@@ -80,7 +79,6 @@ valoresBenford[6] = Math.log10(1.0+1.0/7.0);
 valoresBenford[7] = Math.log10(1.0+1.0/8.0);
 valoresBenford[8] = Math.log10(1.0+1.0/9.0);
 
-
 function BenfordTracker() {
 
   this.track = function(pixels, width, height) {
@@ -89,7 +87,7 @@ function BenfordTracker() {
     zerarFilaOcorrencia();
     processarFrame(gray, width, height);
 
-    let results = calcularOcorrencia();
+    results = calcularOcorrencia();
     this.emit('track', {
       data: results
     });
@@ -111,25 +109,22 @@ function BenfordTracker() {
 /**
 Criar classe ProcessadorFrame posteriormente
 */
-  function processarFrame( img, width, height ) {
+  function processarFrame( frame, width, height ) {
     let gradienteEspacial = 0;
     let gradienteTemporal = 0;
     let gradienteTriplo = 0;
 
-    if(img && frameAnterior){
+    if(frame && frameAnterior){
       let quadradoTemporal = 0;
       let quadradoEspacialHorizontal = 0;
-      let quadradoEspacialVertical = 0;
       let contaOcorrenciaNumeroPrimeiroDigito = 0 ;
       for (var index = 1; index < height*width-width; ++index) {
-        gradienteTemporal = img[index] - frameAnterior[index];
-        let gradienteEspacialHorizontal = img[index+1] - img[index];
-        let gradienteEspacialVertical = img[index+width] - img[index];
-        quadradoEspacialHorizontal = Math.pow(gradienteEspacialHorizontal, 2);
-        quadradoEspacialVertical = Math.pow(gradienteEspacialVertical, 2);
+        gradienteTemporal = frame[index] - frameAnterior[index];
+        let gradienteEspacialHorizontal = frame[index+1] - frame[index];
+        let gradienteEspacialVertical = frame[index+width] - frame[index];
         quadradoTemporal = Math.pow(gradienteTemporal, 2);
-        gradienteEspacial = Math.sqrt(quadradoEspacialHorizontal  + quadradoEspacialVertical);
-        gradienteTriplo = Math.sqrt( quadradoEspacialHorizontal + quadradoEspacialVertical + quadradoTemporal);
+        gradienteEspacial = Math.sqrt(Math.pow(gradienteEspacialHorizontal, 2)  + Math.pow(gradienteEspacialVertical, 2));
+        gradienteTriplo = Math.sqrt( gradienteEspacial + quadradoTemporal);
 
 
         if (gradienteEspacial > 0.001) {//se a norma espacial for significativa conta o primeiro digito encontrado
@@ -172,8 +167,8 @@ Criar classe ProcessadorFrame posteriormente
       indiceFila = indiceFila%(quantidadeFramesAmostra-1);
 
     } else {
-      frameAnterior = img;
-      img = null;
+      frameAnterior = frame;
+      frame = null;
     }
   };
 
@@ -216,8 +211,9 @@ Criar classe ProcessadorFrame posteriormente
             }
         }
       }
-
       diferencaTripla /= 2;
+      diferencaTripla = 1 - diferencaTripla;
+
       for(let nivel = 0; nivel < quantidadeFramesAmostra; nivel++) {
           if (acumuladoTriploPorNumero[nivel]){
             if (((acumuladoTriploPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]) > 0) {
@@ -227,8 +223,9 @@ Criar classe ProcessadorFrame posteriormente
             }
           }
       }
+      diferencaEspacial /= 2;
+      diferencaEspacial = 1 - diferencaEspacial;
 
-      diferencaTemporal /= 2;
       for(let nivel = 0; nivel < 9; nivel++) {
           if (acumuladoTemporalPorNumero[nivel]){
             if (((acumuladoTemporalPorNumero[nivel]/acumuladoTemporal)-valoresBenford[nivel]) > 0) {
@@ -238,6 +235,8 @@ Criar classe ProcessadorFrame posteriormente
             }
           }
       }
+      diferencaTemporal /= 2;
+      diferencaTemporal = 1 - diferencaTemporal;
 
       let mapaOcorrencia = new Map();
       mapaOcorrencia.set("direfencaEspacial", diferencaEspacial.toFixed(2));
@@ -266,15 +265,30 @@ google.charts.setOnLoadCallback(drawStuff);
 // Callback that creates and populates a data table,
 // instantiates the pie chart, passes in the data and
 // draws it.
+var chart = null;
+var data = null;
 
+function loadDataChart(){
+  let resultado =  0;
+  if(results){
+    resultado = results.get("diferencaTriplo");
+    resultado *= 100;
+  }
+  if(data){
+    if(data.getNumberOfRows()>0){
+      data.removeRows(0,1);
+    }
+    data.addRow([resultado,resultado]);
+  } else {
+    data = new google.visualization.DataTable();
+    data.addColumn('number', 'Difereça Tripla');
+    data.addColumn('number', 'Difereça Tripla');
+  }
+}
 
 function drawStuff() {
   // Create the data table.
-  var data = new google.visualization.arrayToDataTable([
-    ['Número', 'Ocurrência'],
-    ["Difereça Tripla", diferencaTripla]
-]);
-
+  loadDataChart();
   // Set chart options
   var options = {
     title: 'Gradiente Triplo de Benford',
@@ -294,9 +308,10 @@ function drawStuff() {
     bar: { groupWidth: "90%" }
   };
   // Instantiate and draw our chart, passing in some options.
-  var chart = new google.charts.Bar(document.getElementById('triplo'));
+  chart = new google.charts.Bar(document.getElementById('triplo'));
   chart.draw(data, options);
 };
+
 window.setInterval('drawStuff()', 1000);
 //Implementação da Herança de BenfordTracker em relação a Traker da API tracking.js
 tracking.inherits(BenfordTracker, tracking.Tracker);;
@@ -316,10 +331,10 @@ myTracker.on('track', function(event){
 
   if(event.data){
 
-    mudarVolume(event.data.get("espacial"));
-    context.fillText("Espacial: " + event.data.get("espacial"), 0 + 5, 10 + 22);
-    context.fillText("Temporal: " + event.data.get("temporal"), 0 + 5, 20 + 22);
-    context.fillText("Triplo: " + event.data.get("triplo"), 0 + 5, 30 + 22);
+    mudarVolume(event.data.get("diferencaTriplo"));
+    context.fillText("Espacial: " + event.data.get("direfencaEspacial"), 0 + 5, 10 + 22);
+    context.fillText("Temporal: " + event.data.get("diferencaTemporal"), 0 + 5, 20 + 22);
+    context.fillText("Triplo: " + event.data.get("diferencaTriplo"), 0 + 5, 30 + 22);
   }
 });
 
