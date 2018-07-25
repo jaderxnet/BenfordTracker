@@ -331,7 +331,8 @@ myTracker.on('track', function(event){
 
   if(event.data){
 
-    mudarVolume(event.data.get("diferencaTriplo"));
+    //mudarVolume(event.data.get("diferencaTriplo"));
+    mudarFrequencia(event.data.get("diferencaTriplo"));
     context.fillText("Espacial: " + event.data.get("direfencaEspacial"), 0 + 5, 10 + 22);
     context.fillText("Temporal: " + event.data.get("diferencaTemporal"), 0 + 5, 20 + 22);
     context.fillText("Triplo: " + event.data.get("diferencaTriplo"), 0 + 5, 30 + 22);
@@ -359,14 +360,50 @@ inputElementVideo2.addEventListener('change', (e) => {
 // Controles de Som -----------------------------------------------------------
 var audioContext = new (window.AudioContext || window.webkitAudioContext)();
 var isPlaing = false;
-var oscilador = audioContext.createOscillator();
+
+var real = new Float32Array(2);
+var imag = new Float32Array(2);
+
+real[0] = 0;
+imag[0] = 0;
+real[1] = 1;
+imag[1] = 0;
+let tipo = 'sine';
+var osciladors = [5]
+osciladors[0] = audioContext.createOscillator();
+osciladors[0].frequency.setValueAtTime(220, audioContext.currentTime);
+//osciladors[0].type = 'square';
+osciladors[0].type = tipo;
+osciladors[1] = audioContext.createOscillator();
+osciladors[1].frequency.setValueAtTime(176, audioContext.currentTime);
+//osciladors[1].type = 'triangle';
+osciladors[1].type = tipo;
+osciladors[2] = audioContext.createOscillator();
+osciladors[2].frequency.setValueAtTime(132, audioContext.currentTime);
+//osciladors[2].type = 'sine';
+osciladors[2].type = tipo;
+osciladors[3] = audioContext.createOscillator();
+osciladors[3].frequency.setValueAtTime(88, audioContext.currentTime);
+//osciladors[3].type = 'sawtooth';
+osciladors[3].type = tipo;
+osciladors[4] = audioContext.createOscillator();
+osciladors[4].frequency.setValueAtTime(44, audioContext.currentTime);
+osciladors[4].type = tipo;
+var wave = audioContext.createPeriodicWave(real, imag);
+osciladors[4].setPeriodicWave(wave);
+
 var ganho = audioContext.createGain();
-ganho.gain = 0;
+ganho.gain = 10;
 //var slider = document.getElementById("slider");
 //var output = document.getElementById("volume");
-oscilador.connect(ganho);
-
-oscilador.start();
+osciladors[0].connect(ganho);
+osciladors[1].connect(ganho);
+osciladors[2].connect(ganho);
+osciladors[3].connect(ganho);
+osciladors[4].connect(ganho);
+for (var i = 0; i < osciladors.length; i++) {
+  osciladors[i].start();
+}
 
 function playSound() {
   if(isPlaing){
@@ -380,6 +417,13 @@ function playSound() {
   }
 }
 
+function mudarFrequencia(valor) {
+
+    for (var i =osciladors.length-1; i >= 0 ; i--) {
+      osciladors[i].frequency.setValueAtTime(2*valor*(1+i)*44, audioContext.currentTime);
+    }
+    //output.innerHTML = volume*10;
+}
 function mudarVolume(volume) {
   if(volume>10.0){
     ganho.gain.value = volume/10;
