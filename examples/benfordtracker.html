@@ -59,16 +59,26 @@
 
 <script>
 // Implementação de Benford Tracker -----------------------------------------------------------
+// Quantidade de frames a serem contabilizados para os gradientes acumuldos
 var quantidadeFramesAmostra = 10;
+// Váriável que armazena a lista de valores padrões de benford
 var valoresBenford = [9];
+// Indice da fila que controla qual item da fila está sendo inserido para cada frame processado
 var indiceFila = 0;
-var ocorrenciaTriploPorFrame = [quantidadeFramesAmostra-1];
+/* Variáveis que armazenam acorrencia de valores de primeiro dídigo para cada frame processado,
+os acumulados temporais fundem dados de dois frames, por isso são menores que o espacial*/
 var ocorrenciaEspacialPorFrame = [quantidadeFramesAmostra-1];
+var ocorrenciaTriploPorFrame = [quantidadeFramesAmostra-1];
 var ocorrenciaTemporalPorFrame = [quantidadeFramesAmostra-1];
+// Variável armazena o frame anterior para comparar com o atual
 var frameAnterior = null;
+/*Variável identifica quando a fila de frames processados enche pela primeira vez, a partir
+desse momento o algoritimo  deve substituir indices já existentes da fila*/
 var  filaCheia = false;
+// Variável para armazenar os resultados
 var results = null;
 
+//Inicização dos valores padrões de Benford
 valoresBenford[0] = Math.log10(1.0+1.0/1.0);
 valoresBenford[1] = Math.log10(1.0+1.0/2.0);
 valoresBenford[2] = Math.log10(1.0+1.0/3.0);
@@ -79,25 +89,41 @@ valoresBenford[6] = Math.log10(1.0+1.0/7.0);
 valoresBenford[7] = Math.log10(1.0+1.0/8.0);
 valoresBenford[8] = Math.log10(1.0+1.0/9.0);
 
+// Classe principal do augorítimo de processamento de frame com base em Benford.
 function BenfordTracker() {
 
+/*Função principal do processamento. Essa função vai ser chamada para processar cada pixel, dessa forma
+é necessário criar estratégias de otimização para que não acumulasse volume muito grande de dados.
+Responsável por sobrescrever a função track da api tracking.js
+permitindo receber uma matriz de pixels RGB em formato de array, a largura e autura da imgagem
+representada na matriz.*/
   this.track = function(pixels, width, height) {
-    // Your code here
+    /* usamos uma função interna da api para transformar a matriz de pixel RGB recebida em uma matriz cinza ]
+    esse processo basicamente torna a matriz 3 vezes menor e diminui a complexidade dos calculos*/
     let gray = tracking.Image.grayscale(pixels, width, height, false);
+    // Essa função zera a fila de ocorrencia permitindo o reuso das variáveis para otimizar o código
     zerarFilaOcorrencia();
+    // Essa função processa o frame de pixels em escala de cinza e arrmazena nas variáveis da fila de ocorrencias
     processarFrame(gray, width, height);
-
+    /* Essa função calcula a ocorrencia acumulada e outros dados de cada numero na fila de ocorrencia e armzena
+    tudo em um mapa de resultados  */
     results = calcularOcorrencia();
+
+    //Essa é uma chamada da API que envia os resultados para o métodos que estão ouvindo a API
     this.emit('track', {
       data: results
     });
   }
 
+// Essa função zera a fila de ocorrencia permitindo o reuso das variáveis para otimizar o código
   function zerarFilaOcorrencia(){
+    //Percorre a fila de ocorrencia
     for(let x = 0; x < quantidadeFramesAmostra-1; ++x) {
+      //Inicializa um array para cada numero de 1 a 9
       ocorrenciaTriploPorFrame[x] = [9];
       ocorrenciaTemporalPorFrame[x] = [9];
       ocorrenciaEspacialPorFrame[x] = [9];
+      //Inicializa todas as ocorrencias com 0.0
       for(let y = 0; y < quantidadeFramesAmostra; ++y) {
         ocorrenciaEspacialPorFrame[x][y] = 0.0;
         ocorrenciaTemporalPorFrame[x][y] = 0.0;
@@ -107,18 +133,30 @@ function BenfordTracker() {
   };
 
 /**
-Criar classe ProcessadorFrame posteriormente
-*/
+// Essa função processa o frame de pixels em escala de cinza e arrmazena nas variáveis da fila de ocorrencias
+TODO:Criar classe ProcessadorFrame posteriormente*/
   function processarFrame( frame, width, height ) {
+    //Inicializa uma variável para calcular cada gradiente
     let gradienteEspacial = 0;
     let gradienteTemporal = 0;
     let gradienteTriplo = 0;
 
+    /* Para processar o primeiro frame é necessário existir frame anterior pois as análises temporais usam frame frameAnterior,
+    portanto não procesa o primeiro frame, apenas a partir do segundo
+    TODO Verificar se o não processamento do gradiente temporal do primeiro frame prejudica o algorítimo, até onde olhei não
+    pois no código original também se pulava o primeiro frame*/
     if(frame && frameAnterior){
+      /*Para calcular os gradientes fazemos uso de alguns cálculos que foram divididos em partes aqui para que os valores fossem
+      reusados. no caso dos qaudrado temporal e espacial são usados para armazenar uma potencia de 2*/
       let quadradoTemporal = 0;
       let quadradoEspacialHorizontal = 0;
+      //Essa variavel armazena a ocorrencia do primeiro dígido na análise pixel a pixel
       let contaOcorrenciaNumeroPrimeiroDigito = 0 ;
+      /*Usamos o index para percorrer todos os pixels da imagem exceto o primeiro e a última coluna por conta do gradiente espacial que usa o
+      primeiro pixel como peixel anterior e não tem com quem comparar a última coluna
+      TODO Vericicar se realmente não se deve percorrer a última colua, apesar de estar igual ao algoritimo original*/
       for (var index = 1; index < height*width-width; ++index) {
+        //
         gradienteTemporal = frame[index] - frameAnterior[index];
         let gradienteEspacialHorizontal = frame[index+1] - frame[index];
         let gradienteEspacialVertical = frame[index+width] - frame[index];
@@ -167,6 +205,7 @@ Criar classe ProcessadorFrame posteriormente
       indiceFila = indiceFila%(quantidadeFramesAmostra-1);
 
     } else {
+      //Caso não exista frame anterior, pulamos o primeiro frame e tornamos ele o frame anterior
       frameAnterior = frame;
       frame = null;
     }
