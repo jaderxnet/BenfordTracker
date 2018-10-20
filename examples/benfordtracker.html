@@ -107,9 +107,9 @@ representada na matriz.*/
     processarFrame(gray, width, height);
     /* Essa função calcula a ocorrencia acumulada e outros dados de cada numero na fila de ocorrencia e armzena
     tudo em um mapa de resultados  */
-    results = calcularOcorrencia();
+    results = calcularTotalOcorrencia();
 
-    //Essa é uma chamada da API que envia os resultados para o métodos que estão ouvindo a API
+    //Essa é uma chamada da API que envia os resultados para o métodos que estão ouvindo, no caso a API de exibição do gráfico do Google
     this.emit('track', {
       data: results
     });
@@ -132,6 +132,31 @@ representada na matriz.*/
     }
   };
 
+
+  function calcularOcorrenciaGradiente(gradiente){
+    //Essa variavel armazena a ocorrencia do primeiro dígido na análise pixel a pixel
+    let contaOcorrenciaNumeroPrimeiroDigito = 0 ;
+    /*Com  o valor do gradiente temporal vamos contar as ocorrencias caso elas tenham valores relevante
+    Elas podem ter entre 0 e 255 correspondente ao tom de cinza do gradiente correspondente
+    Queremos contar aqui a quantidade de vezes que os dígitos de 1 a 9 se repetem na primeira posição do gradiente de cada pixel
+    a iniciar pelo gradiente espacial*/
+      //Se o gradiente for maior que 100 estará entre 101 e 255 logo o digito poderá ser 1 ou 2
+      if(gradiente >= 100) {
+        /*Caso o gradiente seja maior que 99 é extraida a parte menor que 100 e dividida por 100 para que de valor 1 ou 2 */
+        contaOcorrenciaNumeroPrimeiroDigito = (gradiente-(gradiente%100))/100;
+          //Se o gradiente for maior que 9 e menor que 101 estará entre 11 e 100 logo o digito poderá ser 1 e 9
+      } else if (gradiente >= 10) {
+        /*Caso o gradiente seja maior que 9 é extraida a parte menor que 10 e dividida por 10 para obter o primeiro dígito entre 1 e 9 */
+        contaOcorrenciaNumeroPrimeiroDigito = (gradiente-(gradiente%10))/10;
+      } else {
+        /*Caso o gradiente seja menor que 10 será usada a operação MOD para retornar o resto da divisão por 1 para evitar
+        um comportamento inesperado do javascript e garantir que o valo fique entre 1 e 9 */
+        contaOcorrenciaNumeroPrimeiroDigito = (gradiente-gradiente%1);
+      }
+      /*A ocorrencia é retornada */
+    return contaOcorrenciaNumeroPrimeiroDigito;
+  };
+
 /**
 // Essa função processa o frame de pixels em escala de cinza e arrmazena nas variáveis da fila de ocorrencias
 TODO:Criar classe ProcessadorFrame posteriormente*/
@@ -150,133 +175,173 @@ TODO:Criar classe ProcessadorFrame posteriormente*/
       reusados. no caso dos qaudrado temporal e espacial são usados para armazenar uma potencia de 2*/
       let quadradoTemporal = 0;
       let quadradoEspacialHorizontal = 0;
+      let quadradoEspacialVertical = 0;
       //Essa variavel armazena a ocorrencia do primeiro dígido na análise pixel a pixel
-      let contaOcorrenciaNumeroPrimeiroDigito = 0 ;
+
       /*Usamos o index para percorrer todos os pixels da imagem exceto o primeiro e a última coluna por conta do gradiente espacial que usa o
       primeiro pixel como peixel anterior e não tem com quem comparar a última coluna
       TODO Vericicar se realmente não se deve percorrer a última colua, apesar de estar igual ao algoritimo original*/
       for (var index = 1; index < height*width-width; ++index) {
-        //
+        //Para calcular o gradiente temporal subitraimos o frame anterior do frame atual
         gradienteTemporal = frame[index] - frameAnterior[index];
+        //Para calcular o gradiente espacial primeiro tenho que calcular o gradiente espacial no eixo horizontal e vertical
+        //Pra calcular o gradiente espacial horizontal eu faço a difrença entre o pixel atual e o próximo
         let gradienteEspacialHorizontal = frame[index+1] - frame[index];
+        //Pra calcular o gradiente espacial vertical eu faço a difrença entre o pixel atual e o equivalente na próxima coluna
         let gradienteEspacialVertical = frame[index+width] - frame[index];
+        //É necessário calcular o quadrdo espacial horizontal e vertical para usar no cálculo do gradiente espacial e triplo
+        quadradoEspacialHorizontal = Math.pow(gradienteEspacialHorizontal, 2);
+        quadradoEspacialVertical = Math.pow(gradienteEspacialVertical, 2);
+        //O gradiente espacial é obtido calculando a raiz quadrada da soma do quadrado espacial vertical e horizontal
+        gradienteEspacial = Math.sqrt( quadradoEspacialHorizontal + quadradoEspacialVertical);
+        //Para obter o gradiente Triplo é necessário calcular o quadrado do gradiente temporal
         quadradoTemporal = Math.pow(gradienteTemporal, 2);
-        gradienteEspacial = Math.sqrt(Math.pow(gradienteEspacialHorizontal, 2)  + Math.pow(gradienteEspacialVertical, 2));
-        gradienteTriplo = Math.sqrt( gradienteEspacial + quadradoTemporal);
+        //O gradiente Tripo é obtido calculando a raiz quadrada da soma do quadrado temporal, espacial vertical e horizontal
+        gradienteTriplo = Math.sqrt( quadradoEspacialHorizontal + quadradoEspacialVertical + quadradoTemporal);
 
 
-        if (gradienteEspacial > 0.001) {//se a norma espacial for significativa conta o primeiro digito encontrado
-          if(gradienteEspacial > 100) {
-            contaOcorrenciaNumeroPrimeiroDigito = (gradienteEspacial-gradienteEspacial%100)/100;
-          } else if (gradienteEspacial > 10) {
-            contaOcorrenciaNumeroPrimeiroDigito = (gradienteEspacial-gradienteEspacial%10)/10;
-          } else {
-            contaOcorrenciaNumeroPrimeiroDigito = gradienteEspacial-gradienteEspacial%1;
-          }//crescenta +1 na ocorrencia do número no frame
-          ocorrenciaEspacialPorFrame[indiceFila][contaOcorrenciaNumeroPrimeiroDigito-1]++;
+        /*Com  o valor do gradiente temporal vamos contar as ocorrencias caso elas tenham valores relevante
+        Elas podem ter entre 0 e 255 correspondente ao tom de cinza do gradiente correspondente
+        Queremos contar aqui a quantidade de vezes que os dígitos de 1 a 9 se repetem na primeira posição do gradiente de cada pixel
+        a iniciar pelo gradiente espacial*/
+        //se a norma espacial for significativa conta o primeiro digito encontrado
+        if (gradienteEspacial > 0.001) {
+          /*As ocorrencias  são armazenadas no contador de acordo com o primeiro digito do valor do pixel do gradiente no indice
+          atual da fila que está sendo atualizado crescenta +1 na ocorrencia do número no frame */
+          ocorrenciaEspacialPorFrame[indiceFila][calcularOcorrenciaGradiente(gradienteEspacial)-1]++;
         }
 
         if (gradienteTemporal > 0.001) {//se a norma espacial for significativa
-          if(gradienteTemporal > 100) {
-            contaOcorrenciaNumeroPrimeiroDigito = (gradienteTemporal-gradienteTemporal%100)/100;
-          } else if (gradienteTemporal > 10) {
-            contaOcorrenciaNumeroPrimeiroDigito = (gradienteTemporal-gradienteTemporal%10)/10;
-          } else {
-            contaOcorrenciaNumeroPrimeiroDigito = gradienteTemporal-gradienteTemporal%1;
-          }
-          ocorrenciaTemporalPorFrame[indiceFila][contaOcorrenciaNumeroPrimeiroDigito-1]++;
+          /*As ocorrencias  são armazenadas no contador de acordo com o primeiro digito do valor do pixel do gradiente no indice
+          atual da fila que está sendo atualizado crescenta +1 na ocorrencia do número no frame */
+          ocorrenciaTemporalPorFrame[indiceFila][calcularOcorrenciaGradiente(gradienteTemporal)-1]++;
         }
 
         if (gradienteTriplo > 0.001) {//se a norma espacial for significativa
-          if(gradienteTriplo > 100) {
-            contaOcorrenciaNumeroPrimeiroDigito = (gradienteTriplo-gradienteTriplo%100)/100;
-          } else if (gradienteTemporal > 10) {
-            contaOcorrenciaNumeroPrimeiroDigito = (gradienteTriplo-gradienteTriplo%10)/10;
-          } else {
-            contaOcorrenciaNumeroPrimeiroDigito = gradienteTriplo-gradienteTriplo%1;
-          }
-          ocorrenciaTriploPorFrame[indiceFila][contaOcorrenciaNumeroPrimeiroDigito-1]++;
+          /*As ocorrencias  são armazenadas no contador de acordo com o primeiro digito do valor do pixel do gradiente no indice
+          atual da fila que está sendo atualizado crescenta +1 na ocorrencia do número no frame */
+          ocorrenciaTriploPorFrame[indiceFila][calcularOcorrenciaGradiente(gradienteTriplo)-1]++;
         }
       }
+      //Se a fila não estiver cheia e o indice da fila chegar ao final marque a fila como cheia, isso define quando começar calcular valores
       if(!filaCheia && (indiceFila >= quantidadeFramesAmostra-2)){
         filaCheia = true;
       }
-      indiceFila++;
-      indiceFila = indiceFila%(quantidadeFramesAmostra-1);
-
-    } else {
-      //Caso não exista frame anterior, pulamos o primeiro frame e tornamos ele o frame anterior
-      frameAnterior = frame;
-      frame = null;
     }
+    //Atualiza o indice da fila
+    indiceFila++;
+    //Quando o indice da fila chega ao final reinicia o indice para manter a fila circular
+    indiceFila = indiceFila%(quantidadeFramesAmostra-1);
+    //Atualiza o frame anterior
+    frameAnterior = frame;
+    frame = null;
   };
 
+//Inicializamos as variáveis globais que serão usadas para exibir os valores principais e os gráficos gerais
   diferencaTripla = 0.0;
   diferencaEspacial = 0.0;
   diferencaTemporal = 0.0;
 
-  function calcularOcorrencia(){
+/*Este método calcula a ococrrência total dos valores e outras estatísticas sobre os pixels analisados */
+  function calcularTotalOcorrencia(){
+    //Só começa a fazer os calculos quando a fila está cheia e portanto foram processados frames mínimos
     if(filaCheia){
+      //Variávelresponsável por armazenar no contexto do método os valores acumulados;
       let acumuladoTriplo = 0;
       let acumuladoEspacial = 0;
       let acumuladoTemporal = 0;
       let acumuladoTriploPorNumero = [9];
       let acumuladoEspacialPorNumero = [9];
       let acumuladoTemporalPorNumero = [9];
+      diferencaTripla = 0.0;
+      diferencaEspacial = 0.0;
+      diferencaTemporal = 0.0;
 
-      for(let x = 0; x < quantidadeFramesAmostra-1; ++x) {
-        for(let y = 0; y < 9; ++y) {
-          if(ocorrenciaEspacialPorFrame[x][y]){
-            acumuladoEspacial += ocorrenciaEspacialPorFrame[x][y];
-            acumuladoEspacialPorNumero[y] += ocorrenciaEspacialPorFrame[x][y];
+      /* Percorre o a fila usando a variavel indice Frame para ir do início ao fim da fila */
+      for(let indiceframe = 0; indiceframe < quantidadeFramesAmostra-1; indiceframe++) {
+        /* Para cada indice da fila percorre os valores dos indices de digitos acumulados
+        usando a variavel indice Digito para ir do indice 0 ao 8 que corresponde aos dígitos 1 ao 9 */
+        for(let indiceDigito = 0; indiceDigito < 9; ++indiceDigito) {
+          //Verifica se existe valor válido na ocorrência armazenada para evitar erro de variável nula no javascript
+          if(ocorrenciaEspacialPorFrame[indiceframe][indiceDigito]){
+            //Acumula valor da ocorrencia espacial para todos os  digitos de otodos os frames
+            acumuladoEspacial += ocorrenciaEspacialPorFrame[indiceframe][indiceDigito];
+            //Acumula valor da ocorrencia espacial para cada  digito em todos os frames
+            acumuladoEspacialPorNumero[indiceDigito] += ocorrenciaEspacialPorFrame[indiceframe][indiceDigito];
           }
-          if(ocorrenciaTemporalPorFrame[x][y]){
-            acumuladoTemporal += ocorrenciaTemporalPorFrame[x][y];
-            acumuladoTemporalPorNumero[y] += ocorrenciaTemporalPorFrame[x][y];
+          //Verifica se existe valor válido na ocorrência armazenada para evitar erro de variável nula no javascript
+          if(ocorrenciaTemporalPorFrame[indiceframe][indiceDigito]){
+            //Acumula valor da ocorrencia temporal para todos os  digitos de otodos os frames
+            acumuladoTemporal += ocorrenciaTemporalPorFrame[indiceframe][indiceDigito];
+            //Acumula valor da ocorrencia temporal para cada  digito em todos os frames
+            acumuladoTemporalPorNumero[indiceDigito] += ocorrenciaTemporalPorFrame[indiceframe][indiceDigito];
           }
-          if(ocorrenciaTriploPorFrame[x][y]){
-            acumuladoTriplo += ocorrenciaTriploPorFrame[x][y];
-            acumuladoTriploPorNumero[y] += ocorrenciaTriploPorFrame[x][y];
+          //Verifica se existe valor válido na ocorrência armazenada para evitar erro de variável nula no javascript
+          if(ocorrenciaTriploPorFrame[indiceframe][indiceDigito]){
+            //Acumula valor da ocorrencia espacial para todos os  digitos de otodos os frames
+            acumuladoTriplo += ocorrenciaTriploPorFrame[indiceframe][indiceDigito];
+            //Acumula valor da ocorrencia espacial para cada  digito em todos os frames
+            acumuladoTriploPorNumero[indiceDigito] += ocorrenciaTriploPorFrame[indiceframe][indiceDigito];
           }
         }
       }
 
+      // Percorre os nove níveis para calcular a diferença triplo
       for(let nivel = 0; nivel < 9; nivel++) {
-        if (acumuladoEspacialPorNumero[nivel]){
-            if (((acumuladoEspacialPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]) > 0) {
-              diferencaTripla += ((acumuladoEspacialPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]);
-            } else {
-              diferencaTripla -= ((acumuladoEspacialPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]);
-            }
-        }
-      }
-      diferencaTripla /= 2;
-      diferencaTripla = 1 - diferencaTripla;
-
-      for(let nivel = 0; nivel < quantidadeFramesAmostra; nivel++) {
-          if (acumuladoTriploPorNumero[nivel]){
+        //Verifica se existe valor válido no acumulado para evitar erro de variável nula no javascript
+        if (acumuladoTriploPorNumero[nivel]){
+            //Verofica se acumulado por numero dividido pelo somatório total subtraido o valor esperado de Benford para esse dígito é positivo
             if (((acumuladoTriploPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]) > 0) {
-              diferencaEspacial += ((acumuladoTriploPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]);
+              //calcula a diferença Tripla caso ela seja positiva
+              diferencaTripla += (acumuladoTriploPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel];
             } else {
-              diferencaEspacial -= ((acumuladoTriploPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel]);
+              //calcula a diferença Tripla caso ela seja negativa
+              diferencaTripla -= (acumuladoTriploPorNumero[nivel]/acumuladoTriplo)-valoresBenford[nivel];
             }
-          }
+        }
       }
-      diferencaEspacial /= 2;
-      diferencaEspacial = 1 - diferencaEspacial;
-
+      //TODO Não sei o motivo de dividir a diferença tripla por dois, fiz isso pois estava no projeto horiginal
+      diferencaTripla /= 2;
+      //TODO Aqui subtrai de 1 o valor da diferença Tripla o que daria a porcentagem de conformidade, mas não tenho certeza que está no local correto
+      diferencaTripla = 1 - diferencaTripla;
+      // Percorre os nove níveis para calcular a diferença Espacial
       for(let nivel = 0; nivel < 9; nivel++) {
-          if (acumuladoTemporalPorNumero[nivel]){
-            if (((acumuladoTemporalPorNumero[nivel]/acumuladoTemporal)-valoresBenford[nivel]) > 0) {
-              diferencaTemporal += ((acumuladoTemporalPorNumero[nivel]/acumuladoTemporal)-valoresBenford[nivel]);
+          //Verifica se existe valor válido no acumulado para evitar erro de variável nula no javascript
+          if (acumuladoEspacialPorNumero[nivel]){
+            //Verofica se acumulado por numero dividido pelo somatório total subtraido o valor esperado de Benford para esse dígito é positivo
+            if (((acumuladoEspacialPorNumero[nivel]/acumuladoEspacial)-valoresBenford[nivel]) > 0) {
+              //calcula a diferença Espacial caso ela seja positiva
+              diferencaEspacial += (acumuladoEspacialPorNumero[nivel]/acumuladoEspacial)-valoresBenford[nivel];
             } else {
-              diferencaTemporal -= ((acumuladoTemporalPorNumero[nivel]/acumuladoTemporal)-valoresBenford[nivel]);
+              //calcula a diferença Espacial caso ela seja negativa
+              diferencaEspacial -= (acumuladoEspacialPorNumero[nivel]/acumuladoEspacial)-valoresBenford[nivel];
             }
           }
       }
+      //TODO Não sei o motivo de dividir a diferença tripla por dois, fiz isso pois estava no projeto horiginal
+      diferencaEspacial /= 2;
+      //TODO Aqui subtrai de 1 o valor da diferença Tripla o que daria a porcentagem de conformidade, mas não tenho certeza que está no local correto
+      diferencaEspacial = 1 - diferencaEspacial;
+      // Percorre os nove níveis para calcular a diferença Temporal
+      for(let nivel = 0; nivel < 9; nivel++) {
+          //Verifica se existe valor válido no acumulado para evitar erro de variável nula no javascript
+          if (acumuladoTemporalPorNumero[nivel]){
+            //Verofica se acumulado por numero dividido pelo somatório total subtraido o valor esperado de Benford para esse dígito é positivo
+            if (((acumuladoTemporalPorNumero[nivel]/acumuladoTemporal)-valoresBenford[nivel]) > 0) {
+              //calcula a diferença Temporal caso ela seja positiva
+              diferencaTemporal += (acumuladoTemporalPorNumero[nivel]/acumuladoTemporal)-valoresBenford[nivel];
+            } else {
+              //calcula a diferença Temporal caso ela seja negativa
+              diferencaTemporal -= (acumuladoTemporalPorNumero[nivel]/acumuladoTemporal)-valoresBenford[nivel];
+            }
+          }
+      }
+      //TODO Não sei o motivo de dividir a diferença tripla por dois, fiz isso pois estava no projeto horiginal
       diferencaTemporal /= 2;
+      //TODO Aqui subtrai de 1 o valor da diferença Tripla o que daria a porcentagem de conformidade, mas não tenho certeza que está no local correto
       diferencaTemporal = 1 - diferencaTemporal;
 
+      //Armazena vários dados em um mapa de ocorrências
       let mapaOcorrencia = new Map();
       mapaOcorrencia.set("direfencaEspacial", diferencaEspacial.toFixed(2));
       mapaOcorrencia.set("diferencaTemporal", diferencaTemporal.toFixed(2));
@@ -297,38 +362,50 @@ TODO:Criar classe ProcessadorFrame posteriormente*/
 }
 
 
-// Load the Visualization API and the corechart package.
+// Carrega API do Google para visualização de graficos
 google.charts.load('current', {'packages':['bar']});
-// Set a callback to run when the Google Visualization API is loaded.
+// Seleciona qual a função de retorno quando a API de visualização do Google for chamada
 google.charts.setOnLoadCallback(drawStuff);
-// Callback that creates and populates a data table,
-// instantiates the pie chart, passes in the data and
-// draws it.
+// O retorno cria o grafico e popula a tabela de dados,
+// É necessário instanciar o grafico e popular os dados na configuração do gráfico em options do google chart
 var chart = null;
 var data = null;
 
+/* Função que carrega os dados no gráfico após o retorno da API do Google
+TODO Colocar isso em um work para quan a atualização seja instantânea e não dependa de atualização da tela*/
 function loadDataChart(){
+  //Variável para armazenar resultado
   let resultado =  0;
+  //Avalia se há resultados no retorno da API Tracker
   if(results){
+    //Copia o resultado que será usado para gerar o gráfico
     resultado = results.get("diferencaTriplo");
+    //Normaliza o resultado para a escala de 100%
     resultado *= 100;
   }
+
+  //Verifica se existe configuração valida de dados para o gráfico
   if(data){
+    //Verifica se há informações anteriores na tabela
     if(data.getNumberOfRows()>0){
+      //Remove as linhas atuais para atualizar o gráfico
       data.removeRows(0,1);
     }
+    //Adiciona uma nova linha com os dados novos
     data.addRow([resultado,resultado]);
   } else {
+    //Caso não haja dados previamente configurados cria as colunas necessárias
     data = new google.visualization.DataTable();
     data.addColumn('number', 'Difereça Tripla');
     data.addColumn('number', 'Difereça Tripla');
   }
 }
 
+//Função Responsável por desenhar o gráfico
 function drawStuff() {
-  // Create the data table.
+  // Criar a tabela de dados
   loadDataChart();
-  // Set chart options
+  // Configurar as opções de gráfico
   var options = {
     title: 'Gradiente Triplo de Benford',
     width: 300,
@@ -346,32 +423,41 @@ function drawStuff() {
     },
     bar: { groupWidth: "90%" }
   };
-  // Instantiate and draw our chart, passing in some options.
+  // Instanciar o gráfico no elemento da interface
   chart = new google.charts.Bar(document.getElementById('triplo'));
+  //Desenhar gráfico de acordo com dados e opções
   chart.draw(data, options);
 };
 
+//Função que atualiza o gráfico a cada 1 segundo.
+//TODO retirar isso quando implementar o worder
 window.setInterval('drawStuff()', 1000);
 //Implementação da Herança de BenfordTracker em relação a Traker da API tracking.js
-tracking.inherits(BenfordTracker, tracking.Tracker);;
+tracking.inherits(BenfordTracker, tracking.Tracker);
+//Instanciando o construtor de Benford Trafcker
 BenfordTracker.prototype.constructor = BenfordTracker;
 
+// variavel para armazenar o elemento canvas
 var canvas = document.getElementById('canvas');
+// Variável para armazenar  o contexto 2D
 var context = canvas.getContext('2d');
-
+// Instancia da classe de Benford
 var myTracker = new BenfordTracker();
 
-//Tratamento de eventos recebidos já processados
+// Chamada da função principal que atualiza os dados do BenfordTracker pela API Tracking
 myTracker.on('track', function(event){
+  //Preparação do canvas para ser desenhado e receber texto
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.strokeStyle = "#000";
   context.font = '10px Helvetica';
   context.fillStyle = "#000"
 
+  //Verifica se existe dados válidos no evento recebido
   if(event.data){
 
-    //mudarVolume(event.data.get("diferencaTriplo"));
+    //Muda frequncia do som de acordo com dados recebidos
     mudarFrequencia(event.data.get("diferencaTriplo"));
+    //Imprime no canvas texto com dados recebidos
     context.fillText("Espacial: " + event.data.get("direfencaEspacial"), 0 + 5, 10 + 22);
     context.fillText("Temporal: " + event.data.get("diferencaTemporal"), 0 + 5, 20 + 22);
     context.fillText("Triplo: " + event.data.get("diferencaTriplo"), 0 + 5, 30 + 22);
@@ -381,34 +467,53 @@ myTracker.on('track', function(event){
 // Controes de Entrada --------------------------------------------------------
 //Exibir e processar o video da câmera  function capturaVideoWebCam
 let inputElementVideo1 = document.getElementById('buttonCameraVideo');
+// A partir do click de um botão o elemento inputElementVideo1 lança um evento
 inputElementVideo1.addEventListener('click', (e) => {
+  //O evento chamado dá início do processamento do imágens a partir da Web Cam
   tracking.track('#myVideo', myTracker, { camera: true });
+  //inicia o monitoramento do som
   playSound();
+//Fim do comando de disparo do evento
 }, false);
-//Exibir e processar video do armazenamento local
+
+//Exibir e processar video do armazenamento local a partir de janela de acesso a arquivos
 let inputElementVideo2 = document.getElementById('fileInputVideo');
+// A partir da seleção de um arquivo como entrada para inputElementVideo2 lança um evento
 inputElementVideo2.addEventListener('change', (e) => {
+  // Elemento de vídeo é colocado em uma variavel
   let videoTag = document.getElementById('myVideo');
+  //O evento chamado dá início do processamento do arquivo de vídeo selecionado
   videoTag.src=URL.createObjectURL(e.target.files[0]);
+  // O vídeo é reproduzido no canvas
   videoTag.play();
+  //O evento chamado dá início do processamento do imágens a partir da arquivo selecionado
   tracking.track('#myVideo', myTracker);
+  //inicia o monitoramento do som
   playSound();
+  //Fim do comando de disparo do evento
 }, false);
 // -------------------------------------------------------- Controes de Entrada
 
 // Controles de Som -----------------------------------------------------------
+// É criado um contexto de audio de acordo com a tecnologia disponível no Browser
 var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+//Controle de play do audio
 var isPlaing = false;
-
+//Elementos criados para ser a semente do som criado
 var real = new Float32Array(2);
 var imag = new Float32Array(2);
 
+//A semente do som gerado é o valor 1 e 0, uma base binária
 real[0] = 0;
 imag[0] = 0;
 real[1] = 1;
 imag[1] = 0;
+
+//Seta o ocilador para o tipo sino
 let tipo = 'sine';
+//cria um array de osciladores, essa é melhor mandeira de o som ficar agradável
 var osciladors = [5]
+// Cria e configura cada oscilador com uma frequencia diferente podendo ter também tipos diferentes
 osciladors[0] = audioContext.createOscillator();
 osciladors[0].frequency.setValueAtTime(220, audioContext.currentTime);
 //osciladors[0].type = 'square';
@@ -428,22 +533,28 @@ osciladors[3].type = tipo;
 osciladors[4] = audioContext.createOscillator();
 osciladors[4].frequency.setValueAtTime(44, audioContext.currentTime);
 osciladors[4].type = tipo;
+
+//Cria a onda a partir dos valores sementes
 var wave = audioContext.createPeriodicWave(real, imag);
+//Usa a onda para definir o período da onda do último scilador
 osciladors[4].setPeriodicWave(wave);
 
+//Ganho determina o volume de saída do audio
 var ganho = audioContext.createGain();
+//O volume maximo é definido
 ganho.gain = 10;
-//var slider = document.getElementById("slider");
-//var output = document.getElementById("volume");
+//Interconectamos os osciladores
 osciladors[0].connect(ganho);
 osciladors[1].connect(ganho);
 osciladors[2].connect(ganho);
 osciladors[3].connect(ganho);
 osciladors[4].connect(ganho);
+//Inicializamos todos os osciladores
 for (var i = 0; i < osciladors.length; i++) {
   osciladors[i].start();
 }
 
+//Função que controla o som conectando ou disconectando o ganho ao contexto
 function playSound() {
   if(isPlaing){
     //oscilador.connect(biguad);
@@ -456,13 +567,15 @@ function playSound() {
   }
 }
 
+// Função que muda a frequencia de acordo com o valor recebido
 function mudarFrequencia(valor) {
-
     for (var i =osciladors.length-1; i >= 0 ; i--) {
       osciladors[i].frequency.setValueAtTime(2*valor*(1+i)*44, audioContext.currentTime);
     }
     //output.innerHTML = volume*10;
 }
+
+//Função que muda o ganho de acordo com valor recebido
 function mudarVolume(volume) {
   if(volume>10.0){
     ganho.gain.value = volume/10;
@@ -475,7 +588,7 @@ function mudarVolume(volume) {
 }
 // ----------------------------------------------------------- Controles de Som
 
-
+//TODO Função que incializa controles da API trancking que ainda não está sendo usado
 //initGUIControllers(myTracker);
 
 </script>
