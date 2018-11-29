@@ -72,11 +72,16 @@ function BenfordTracker() {
   var valoresBenford = [9];
   // Indice da fila que controla qual item da fila está sendo inserido para cada frame processado
   var indiceFila = 0;
+  console.log("ZERAR: O que está nas ocorrências?:");
+  console.log(ocorrenciaEspacialPorFrame);
   /* Variáveis que armazenam acorrencia de valores de primeiro dídigo para cada frame processado,
   os acumulados temporais fundem dados de dois frames, por isso são menores que o espacial*/
   var ocorrenciaEspacialPorFrame = [quantidadeFramesAmostra-1];
   var ocorrenciaTriploPorFrame = [quantidadeFramesAmostra-1];
   var ocorrenciaTemporalPorFrame = [quantidadeFramesAmostra-1];
+  zerarFilaOcorrencia();
+  console.log("ZERAR: O que está nas ocorrências?:");
+  console.log(ocorrenciaEspacialPorFrame);
   // Variável armazena o frame anterior para comparar com o atual
   var frameAnterior = null;
   /*Variável identifica quando a fila de frames processados enche pela primeira vez, a partir
@@ -103,7 +108,7 @@ representada na matriz.*/
     esse processo basicamente torna a matriz 3 vezes menor e diminui a complexidade dos calculos*/
     let gray = tracking.Image.grayscale(pixels, width, height, false);
     // Essa função zera a fila de ocorrencia permitindo o reuso das variáveis para otimizar o código
-    zerarFilaOcorrencia();
+    //zerarFilaOcorrencia();
     // Essa função processa o frame de pixels em escala de cinza e arrmazena nas variáveis da fila de ocorrencias
     processarFrame(gray, width, height);
     /* Essa função calcula a ocorrencia acumulada e outros dados de cada numero na fila de ocorrencia e armzena
@@ -236,13 +241,38 @@ TODO:Criar classe ProcessadorFrame posteriormente*/
     //Atualiza o frame anterior
     frameAnterior = frame;
     frame = null;
+    zerarOcorrenciaIndice(indiceFila);
   };
+// Essa função zera um determinado indice da fila de ocorrencia permitindo acumular novamente
+  function zerarOcorrenciaIndice(x){
+    //Percorre a fila de ocorrencia
+      for(let y = 0; y < quantidadeFramesAmostra; ++y) {
+        ocorrenciaEspacialPorFrame[x][y] = 0.0;
+        ocorrenciaTemporalPorFrame[x][y] = 0.0;
+        ocorrenciaTriploPorFrame[x][y] = 0.0;
+      }
+    }
 
 //Inicializamos as variáveis globais que serão usadas para exibir os valores principais e os gráficos gerais
 //TODO PROBLEMA AQUI
   diferencaTripla = 0.0;
   diferencaEspacial = 0.0;
   diferencaTemporal = 0.0;
+
+function inserirDadosFakeNasOcorrencias(){
+
+  /* Percorre o a fila usando a variavel indice Frame para ir do início ao fim da fila */
+
+  //for(let indiceframe = 0; indiceframe < quantidadeFramesAmostra-1; indiceframe++) {
+    /* Para cada indice da fila percorre os valores dos indices de digitos acumulados
+    usando a variavel indice Digito para ir do indice 0 ao 8 que corresponde aos dígitos 1 ao 9 */
+    //for(let indiceDigito = 0; indiceDigito < 9; ++indiceDigito) {
+    //  ocorrenciaEspacialPorFrame[indiceframe][indiceDigito];
+      //ocorrenciaTemporalPorFrame[indiceframe][indiceDigito];
+      //ocorrenciaTriploPorFrame[indiceframe][indiceDigito];
+    //}
+  //}
+}
 
 /*Este método calcula a ococrrência total dos valores e outras estatísticas sobre os pixels analisados */
   function calcularTotalOcorrencia(){
