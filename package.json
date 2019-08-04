@@ -9,21 +9,16 @@
     "trackingjs",
     "webrtc"
   ],
-  "author": {
-    "name": "Eduardo Lundgren",
-    "email": "edu@rdo.io",
-    "web": "http://eduardo.io",
-    "twitter": "eduardolundgren"
-  },
+  "author": "Eduardo Lundgren <edu@rdo.io> (http://eduardo.io)",
   "repository": {
     "type": "git",
-    "url": "git@github.com:eduardolundgren/tracking.js.git"
+    "url": "git+ssh://git@github.com/eduardolundgren/tracking.js.git"
   },
   "scripts": {
     "test": "gulp test",
     "build": "gulp build"
   },
-  "license": "BSD",
+  "license": "UNLICENSED",
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
@@ -41,5 +36,15 @@
     "png-js": "^0.1.1",
     "run-sequence": "^1.1.5",
     "dat.gui": "^0.6.1"
+  },
+  "bugs": {
+    "url": "https://github.com/eduardolundgren/tracking.js/issues"
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "dependencies": {
+    "firebase": "^6.0.4"
   }
 }
