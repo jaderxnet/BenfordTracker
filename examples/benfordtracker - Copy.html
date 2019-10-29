@@ -7,53 +7,54 @@
   box-sizing: border-box;
 }
 .menu {
-  width: 20%;
+  float: left;
+  width: 10%;
+  background-color: #ddd;
+  color: black;
 }
 .menuitem {
   padding: 8px;
   margin-top: 7px;
-  border-bottom: 1px solid #f1f1f1;
+  border-bottom: 1px solid #AAA;
 }
-.main {
+.video {
   float: left;
-  width: 60%;
+  width: 40%;
   padding: 0 20px;
-  overflow: hidden;
 }
-.right {
+
+.main {
   background-color: lightblue;
-  float: right;
-  width: 20%;
+  float: left;
+  width: 10%;
   padding: 10px 15px;
   margin-top: 7px;
 }
 
-@media only screen and (max-width:800px) {
-  /* For tablets: */
-  .main {
-    width: 80%;
-    padding: 0;
-  }
-  .right {
-    width: 100%;
-  }
+.canvas {
+  float: left;
+  width: 40%;
+  padding: 0 20px;
 }
-@media only screen and (max-width:500px) {
+
+@media (max-width:800px) {
   /* For mobile phones: */
-  .menu, .main, .right {
-    width: 100%;
+  .menu, .video {
+    width: 50%;
+  }
+  .main, .canvas {
+    width: 50%;
   }
 }
-  .demo-container {
-    background-color: black;
-    border-style: solid;
-  }
-
-  video, canvas {
-    position: absolute;
-  }
-
+/* Footer */
+.footer {
+  padding: 20px;
+  text-align: center;
+  background: #ddd;
+}
 </style>
+
+
 
 <meta charset="utf-8">
   <title>tracking.js - color with video</title>
@@ -73,14 +74,14 @@
   //initGUIControllers(myTracker);
   </script>
   <!------------------------------------------------------------- Controles de Som-->
-
+  
 </head>
 <body style="font-family:Verdana;">
 <center>
 <div style="background-color:#f1f1f1;padding:40px;center;">
 
-  	<h1>BENFORD Analises</h1>
-  	<h3>Visualize exemplos, faça uplouds e experimente a Lei do Primeiro dígito e a sua conformidade em vídeos digitais</h3>
+  	<h1>Benford Analises</h1>
+  	<h3>Visualize exemplos, faça UpLoads e experimente a Lei do Primeiro dígito e a sua conformidade em vídeos digitais</h3>
 
 </div>
 <div class="caption">
@@ -95,32 +96,32 @@
     	<span id="volume"></span>
     </div>
 </div>
-
-<div style="overflow:auto">
-
-
-  <div class="demo-frame">
-    <div class="demo-container">
-      <video id="myVideo" width="800" height="500" preload autoplay loop muted></video>
-      <canvas id="canvas" width="800" height="500"></canvas>
-    </div>
-  </div>
-
-  <div class="right">
-    <div id="triplo" style="width: 300px; height: 500px;"></div>
-        <!--<div id="espacial" style="width: 300px; height: 500px;"></div>-->
-        <!--<div id="temporal" style="width: 300px; height: 500px;"></div>-->
-  </div>
+</center>
+<div class="menu">
+  <div class="menuitem">The Walk</div>
+  <div class="menuitem">Transport</div>
+  <div class="menuitem">History</div>
+  <div class="menuitem">Gallery</div>
 </div>
 
-  <div class="menu">
-    <div class="menuitem">The Walk</div>
-    <div class="menuitem">Transport</div>
-    <div class="menuitem">History</div>
-    <div class="menuitem">Gallery</div>
+
+  <div class="video">
+      <canvas  id="myVideo" width="400" height="300" preload autoplay loop muted style="float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #000000;"></video>
   </div>
 
-<div style="background-color:#f1f1f1;text-align:center;padding:10px;margin-top:7px;font-size:12px;"> This web page is a part of a demonstration of fluid web design made by w3schools.com. Resize the browser window to see the content respond to the resizing.</div>
-</center>
+  <div class="main">
+      <div id="triplo" ></div>
+          <!--<div id="espacial" style="width: 300px; height: 500px;"></div>-->
+          <!--<div id="temporal" style="width: 300px; height: 500px;"></div>-->
+    </div>
+
+  <div class="canvas">
+    <canvas  id="canvas" width="400" height="300"  style="float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #000000;">
+  </div>
+<p>______________________________________________________________________________________________</p>
+
+<div class="footer">
+    <h2>Footer</h2>
+  </div>
 </body>
 </html>
