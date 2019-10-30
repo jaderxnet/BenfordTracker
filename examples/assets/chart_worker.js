@@ -45,11 +45,12 @@ function drawStuff() {
   loadDataChart();
   // Configurar as opções de gráfico
   var options = {
-    title: 'Gradiente Triplo de Benford',
-    width: 300,
+    //title: 'Gradiente Triplo de Benford',
+    width: 100,
     legend: { position: 'none' },
-    chart: { title: 'Gradiente Triplo de Benford',
-    subtitle: 'Ocorrencia primeiro dígito por número' },
+    chart: { //title: 'Gradiente Triplo de Benford',
+    //subtitle: 'Ocorrencia primeiro dígito por número' 
+  },
     bars: 'vertical', // Required for Material Bar Charts.
     axes: {
       x: {
