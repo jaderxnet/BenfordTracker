@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>tracking.js - face with camera</title>
+
+  <script src="../build/tracking-min.js"></script>
+  <script src="../build/data/face-min.js"></script>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-analytics.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyCQtOb1iTrNcceR7H94bPp3kDoVe6CvSVg",
+    authDomain: "magicmirror-9af85.firebaseapp.com",
+    databaseURL: "https://magicmirror-9af85.firebaseio.com",
+    projectId: "magicmirror-9af85",
+    storageBucket: "magicmirror-9af85.appspot.com",
+    messagingSenderId: "94525552215",
+    appId: "1:94525552215:web:f8a8af9e93cf8ea5799512",
+    measurementId: "G-TZ47V9CHG1"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+</script>
+  <style>
+  video, canvas {
+    margin-left: 10%;
+    margin-top: 5%;
+    position: absolute;
+    align-self: center;
+  }
+  </style>
+</head>
+      <video id="video" width="640" height="480" preload autoplay loop muted></video>
+      <canvas id="canvas" width="640" height="480"></canvas>
+      <div class="caption" >
+          <button type="button" style="margin-top:1%;width:100%; height: 30px; align-content:center;" id="eraseFace">Magic Mirror</button>
+        </div>
+
+
+  <script>
+    var i = 0;
+    var memo = false;
+    var ativado = false;
+    var context = canvas.getContext('2d');
+    let eraseFace = document.getElementById('eraseFace');
+    eraseFace.addEventListener('click', (e) => {
+      if(ativado){
+        ativado = false;
+        i = 0;
+        memo = false;
+      } else {
+        ativado = true;
+        i = 0;
+        memo = false;
+        context.filter = 'none';
+      }
+      
+    }, false);
+    window.onload = function() {
+      var video = document.getElementById('video');
+      var canvas = document.getElementById('canvas');
+      
+
+      var tracker = new tracking.ObjectTracker('face');
+      tracker.setInitialScale(4);
+      tracker.setStepSize(2);
+      tracker.setEdgesDensity(0.1);
+
+      tracking.track('#video', tracker, { camera: true });
+      
+      tracker.on('track', function(event) {
+        var blurWidthMem=0;
+        var blurHeight=0;
+        event.data.forEach(function(rect) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          if(ativado){
+            if(ativado == true && memo == false){
+              i++;
+              if(i==15){
+                memo = true;
+              }
+            }
+            blurPosX = rect.x+30;
+          blurPosY = rect.y+30
+          blurDimW = rect.width -30;
+          if(blurDimW-blurWidthMem > 100){
+            blurWidthMem=blurDimW;
+          }
+          blurDimH = rect.height -30;
+          if(blurDimH-blurHeight > 100){
+            blurHeight = blurDimH;
+          }
+          context.strokeStyle = '#a64ceb';
+          context.drawImage( video, blurPosX, blurPosY, blurWidthMem, blurDimH,blurPosX, blurPosY, blurWidthMem, blurDimH);
+          context.filter = 'blur('+ i + 'px)';
+          }
+        });
+      });
+    };
+  </script>
+
+</body>
+</html>
