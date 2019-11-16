@@ -40,9 +40,7 @@ function configurarBenfod(document){
   // A partir do click de um botão o elemento inputElementVideo1 lança um evento
   inputElementVideo1.addEventListener('click', (e) => {
     //O evento chamado dá início do processamento do imágens a partir da Web Cam
-    tracking.track('#myVideo', myTracker, { camera: true });
-    //inicia o monitoramento do som
-    playSound();
+    activeTracking('#myVideo', myTracker, { camera: true });
   //Fim do comando de disparo do evento
   }, false);
 
@@ -56,13 +54,38 @@ function configurarBenfod(document){
     videoTag.src=URL.createObjectURL(e.target.files[0]);
     // O vídeo é reproduzido no canvas
     videoTag.play();
-    //O evento chamado dá início do processamento do imágens a partir da arquivo selecionado
-    tracking.track('#myVideo', myTracker);
-    //inicia o monitoramento do som
-    playSound();
+    //Ativa interface 
+    activeTracking('#myVideo', myTracker);
     //Fim do comando de disparo do evento
   }, false);
 }
+
+//Funcão para esconder uma div qualquer
+function activeTracking(div, myTracker, camera) {
+  //O evento chamado dá início do processamento do imágens a partir da arquivo selecionado
+  tracking.track('#myVideo', myTracker, camera);
+  //inicia o monitoramento do som
+  playSound();
+  //Exibe o bloco de video e gráfico
+  hideDiv("bloc", true);
+}
+
+//Funcão para esconder uma div qualquer
+function hideDiv(div, force) {
+  //Busca a div no documento Html
+  var x = document.getElementById(div);
+  //Se a div estiver desativada
+  if (x.style.display === "none") {
+    //Ativa a div
+    x.style.display = "block";
+    //Se não 
+  } else {
+    if(force) return;
+    //Desativa a div
+    x.style.display = "none";
+  }
+}
+
 // Classe principal do augorítimo de processamento de frame com base em Benford.
 function BenfordTracker() {
   // Implementação de Benford Tracker -----------------------------------------------------------

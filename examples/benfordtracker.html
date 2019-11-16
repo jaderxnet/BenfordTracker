@@ -6,52 +6,57 @@
 * {
   box-sizing: border-box;
 }
-.menu {
-  float: left;
-  width: 10%;
-  background-color: #ddd;
-  color: black;
-}
+
 .menuitem {
   padding: 8px;
   margin-top: 7px;
   border-bottom: 1px solid #AAA;
   width: 100%;
 }
-.video {
+.container {
   float: left;
-  width: 30%;
+  width: 50%;
   padding: 0 20px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.video {
+  width: 100%;
+  height: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.canvas {
+  width: 100%;
+  height: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
 }
 
 .main {
   background-color: lightblue;
   float: left;
-  width: 20%;
+  width: 100%;
+  height: auto;
+  width: 50%;
   padding: 10px 15px;
   margin-top: 7px;
 }
 
-.canvas {
-  float: left;
-  width: 30%;
-  padding: 0 20px;
-}
 
 @media (max-width:800px) {
   /* For mobile phones: */
-  .menu, .video {
+  .container {
     width: 50%;
   }
-  .main, .canvas {
+  .main {
     width: 50%;
   }
-}
-/* Footer */
-.footer {
-  padding: 20px;
-  text-align: center;
-  background: #ddd;
 }
 </style>
 
@@ -61,6 +66,7 @@
   <title>tracking.js - color with video</title>
 
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
   <!--<link rel="stylesheet" href="assets/demo.css">
   <script src="../node_modules/dat.gui/build/dat.gui.min.js"></script>
   <script src="assets/stats.min.js"></script>
@@ -78,57 +84,39 @@
   
 </head>
 <body style="font-family:Verdana;">
-<center>
-<div style="background-color:#f1f1f1;padding:40px;center;">
-
-  	<h1>Benford Analises</h1>
-  	<h3>Visualize exemplos, faça UpLoads e experimente a Lei do Primeiro dígito e a sua conformidade em vídeos digitais</h3>
-
-</div>
-
-	<div class="menuitem">
-    <div class="caption">
-      <button type="button" id="buttonCameraVideo">Usar câmera</button>
+  <center>
+    <div style="background-color:#f1f1f1;padding:40px;center;">
+        <h1>Benford Analises</h1>
+        <h3>Visualize exemplos, faça UpLoads e experimente a Lei do Primeiro dígito e a sua conformidade em vídeos digitais</h3>
     </div>
-  </div>
-	<div class="menuitem"> 
-    <div class="caption">
-      <input type="file" id="fileInputVideo" name="file" value="Upload" placeholder="Video" />
+      <div class="menuitem">
+        <div class="caption">
+          <button type="button" id="buttonCameraVideo">Usar câmera</button>
+        </div>
+      </div>
+      <div class="menuitem"> 
+        <div class="caption">
+          <input type="file" id="fileInputVideo" name="file" value="Upload" placeholder="Video" />
+        </div>
+      </div>
+      <div class="menuitem"> 
+        Volume: <input id="slider" oninput="mudarVolume(0)" type="range" min="0" max="10"  step="0.01"> 
+        <span id="volume"></span>
+      </div>
     </div>
- 	</div>
-    <div class="menuitem"> 
-    	Volume: <input id="slider" oninput="mudarVolume(0)" type="range" min="0" max="10"  step="0.01"> 
-    	<span id="volume"></span>
-    </div>
-</div>
-</center>
-<div class="menu">
-    <p class="menuitem">Gráfico</p>
-  <button type="button" class="menuitem" id="espacial">Espacial</button>
-  <button type="button" class="menuitem" id="">Duplo</button>
-  <button type="button" class="menuitem" id="">Triplo</button>
-</div>
-
-
-  <div class="video">
-      <video  id="myVideo" width="400" height="300" preload autoplay loop muted style="float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #000000;"></video>
+  </center>
+  <div id="bloc" style="display: none"> 
+      <div class="container" width="400" height="300" preload autoplay loop muted style="float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #000000;">
+          <video  class="video" id="myVideo" width="400" height="300" preload autoplay loop muted style="float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #000000;"></video>
+          <canvas class="canvas" id="canvas"  width="400" height="300" preload autoplay loop muted style="float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #000000;" >
+      </div>
+    
+      <div class="main" >
+          <div id="triplo" style="height: 200px; width: 100%;" ></div>
+        </div>
+    
+      <div id="resumo" data-resume="resumo" ></div>
   </div>
-
-  <div class="main">
-      <div id="triplo" ></div>
-          <!--<div id="espacial" style="width: 300px; height: 500px;"></div>-->
-          <!--<div id="temporal" style="width: 300px; height: 500px;"></div>-->
-    </div>
-
-  <div class="canvas">
-    <canvas  id="canvas" width="400" height="300"  style="float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #000000;">
-  </div>
-<p> ______________________________________________________________________________________________________________________________</p>
-
-<div class="footer">
-    <h2>Footer</h2>
-  </div>
-  <div id="resumo" data-resume="resumo" ></div>
 </body>
 
 <script>
