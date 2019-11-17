@@ -41,7 +41,7 @@ function configurarBenfod(document){
   inputElementVideo1.addEventListener('click', (e) => {
     //O evento chamado dá início do processamento do imágens a partir da Web Cam
     activeTracking('#myVideo', myTracker, { camera: true });
-  //Fim do comando de disparo do evento
+    //Fim do comando de disparo do evento
   }, false);
 
   //Exibir e processar video do armazenamento local a partir de janela de acesso a arquivos
@@ -67,7 +67,9 @@ function activeTracking(div, myTracker, camera) {
   //inicia o monitoramento do som
   playSound();
   //Exibe o bloco de video e gráfico
-  hideDiv("bloc", true);
+  hideDiv("blocButtons");
+  hideDiv("blocView", true);
+  hideDiv("blocControllers", true);
 }
 
 //Funcão para esconder uma div qualquer
