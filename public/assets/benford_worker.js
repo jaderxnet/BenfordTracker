@@ -1,5 +1,8 @@
 
 function configurarBenfod(document){
+  if (typeof(Storage) !== "undefined") {
+    localStorage.clear(); 
+  }
   //Implementação da Herança de BenfordTracker em relação a Traker da API tracking.js
   tracking.inherits(BenfordTracker, tracking.Tracker);
   //Instanciando o construtor de Benford Trafcker
@@ -22,15 +25,27 @@ function configurarBenfod(document){
 
     //Verifica se existe dados válidos no evento recebido
     if(event.data){
-
       //Muda frequncia do som de acordo com dados recebidos
       mudarFrequencia(event.data.get("diferencaTriplo"));
       //Imprime no canvas texto com dados recebidos
       context.fillText("Espacial: " + event.data.get("direfencaEspacial"), 0 + 5, 10 + 22);
       context.fillText("Temporal: " + event.data.get("diferencaTemporal"), 0 + 5, 20 + 22);
       context.fillText("Triplo: " + event.data.get("diferencaTriplo"), 0 + 5, 30 + 22);
-      let divResumo = document.getElementById('resumo');
-      divResumo.setAttribute("data-resumo", event.data.get("diferencaTriplo"))
+      // Check browser support
+      if (typeof(Storage) !== "undefined") {
+        // Storage
+        localStorage.setItem("direfencaEspacial", event.data.get("direfencaEspacial"));
+        localStorage.setItem("diferencaTemporal", event.data.get("diferencaTemporal"));
+        localStorage.setItem("diferencaTriplo", event.data.get("diferencaTriplo"));
+        localStorage.setItem("espacialPorFrame", event.data.get("espacialPorFrame"));
+        localStorage.setItem("temporalPorFrame", event.data.get("temporalPorFrame"));
+        localStorage.setItem("triploPorFrame", event.data.get("triploPorFrame"));
+        localStorage.setItem("acumuladoEspacial", event.data.get("acumuladoEspacial"));
+        localStorage.setItem("acumuladotemporal", event.data.get("acumuladotemporal"));
+        localStorage.setItem("acumuladotriplo", event.data.get("acumuladotriplo"));
+        localStorage.setItem("acumuladoEspacialPorNumero", event.data.get("acumuladoEspacialPorNumero"));
+        localStorage.setItem("acumuladotemporalPorNumero", event.data.get("acumuladotemporalPorNumero"));
+      } 
     }
   });
 
@@ -70,7 +85,9 @@ function activeTracking(div, myTracker, camera) {
   hideDiv("blocButtons");
   hideDiv("blocView", true);
   hideDiv("blocControllers", true);
+  hideDiv("textRefresh");
 }
+
 
 //Funcão para esconder uma div qualquer
 function hideDiv(div, force) {
@@ -79,7 +96,7 @@ function hideDiv(div, force) {
   //Se a div estiver desativada
   if (x.style.display === "none") {
     //Ativa a div
-    x.style.display = "block";
+    x.style.display = "flex";
     //Se não 
   } else {
     if(force) return;
@@ -299,6 +316,8 @@ function inserirDadosFakeNasOcorrencias(){
   //}
 }
 
+
+
 /*Este método calcula a ococrrência total dos valores e outras estatísticas sobre os pixels analisados */
   function calcularTotalOcorrencia(){
     //Só começa a fazer os calculos quando a fila está cheia e portanto foram processados frames mínimos
@@ -310,6 +329,12 @@ function inserirDadosFakeNasOcorrencias(){
       let acumuladoTriploPorNumero = [9];
       let acumuladoEspacialPorNumero = [9];
       let acumuladoTemporalPorNumero = [9];
+      for(let x = 0; x < 9; ++x) {
+        //Inicializa todas as ocorrencias com 0.0
+          acumuladoTriploPorNumero[x] = 0.0;
+          acumuladoEspacialPorNumero[x] = 0.0;
+          acumuladoTemporalPorNumero[x] = 0.0;
+      }
 
       //TODO PROBLEMA AQUI
       diferencaTripla = 0.0;

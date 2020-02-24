@@ -24,12 +24,16 @@ function drawChart() {
   var resumo;
   var resultado;
 //Avalia se há resultados no retorno da API Tracker
-resumo = document.getElementById('resumo');
+if (typeof(Storage) !== "undefined") {
+  resumo = localStorage.getItem("diferencaTriplo");
+}
+console.log("Reumo: " + resumo)
 if(resumo){
   //Copia o resultado que será usado para gerar o gráfico
-  resultado = resumo.dataset.resumo;
+  resultado = resumo;
   //Normaliza o resultado para a escala de 100%
   resultado *= 100;
+  
 
 		if(resultado){
       dps.shift();

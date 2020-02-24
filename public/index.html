@@ -14,6 +14,7 @@
   width: 100%;
 }
 .container {
+  flex: 50%;
   float: left;
   width: 50%;
   padding: 0 20px;
@@ -39,23 +40,17 @@
 }
 
 .main {
-  background-color: lightblue;
-  float: left;
-  width: 100%;
-  height: auto;
-  width: 50%;
-  padding: 10px 15px;
-  margin-top: 7px;
+  flex: 50%;
 }
 
+.blocView {
+  display: flex;
+}
 
 @media (max-width:800px) {
   /* For mobile phones: */
-  .container {
-    width: 50%;
-  }
-  .main {
-    width: 50%;
+  .container, .main {
+    flex-direction: column;
   }
 }
 </style>
@@ -86,6 +81,9 @@
         <h1>Benford Law</h1>
         <h3>Teste a lei de Benford com sua câmera ou um video</h3>
         <h3>Test the Bernford law with your camera or a video</h3>
+        <div id="textRefresh" style="display:none;">
+          <h6>Para testar um novo video, atualize a página. Caso não visualize video e grafico, atualize a página duas vezes ou pressione Control + Shift + R para limpar o cache.</h6>
+        </div>
     </div>
     <div id="blocButtons" > 
       <div class="menuitem">
@@ -107,17 +105,14 @@
     </div>
     </div>
   </center>
-  <div id="blocView" style="display: none"> 
-      <div class="container" width="400" height="300" preload autoplay loop muted style="float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #FFF;">
-          <video  class="video" id="myVideo" width="400" height="300" preload autoplay loop muted style="float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #FFF;"></video>
-          <canvas class="canvas" id="canvas"  width="400" height="300" preload autoplay loop muted style="float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #FFF;" >
+  <div id="blocView" class="blocView"> 
+      <div class="container" width="400" height="300" preload autoplay loop muted style="display:flex;float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #FFF;">
+          <video  class="video" id="myVideo" width="400" height="300" preload autoplay loop muted style="display:flex;float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #FFF;"></video>
+          <canvas class="canvas" id="canvas"  width="400" height="300" preload autoplay loop muted style="display:flex;float: left;max-width:100%;min-width:200px;height:auto;border:1px solid #FFF;" >
       </div>
-    
       <div class="main" >
-          <div id="triplo" style="height: 200px; width: 100%;" ></div>
-        </div>
-    
-      <div id="resumo" data-resume="resumo" ></div>
+          <div id="triplo" style="display: flex; height: 200px; width: 100%;" ></div>
+      </div>
   </div>
 </body>
 
