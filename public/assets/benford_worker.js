@@ -34,7 +34,7 @@ function configurarBenfod(document){
       // Check browser support
       if (typeof(Storage) !== "undefined") {
         // Storage
-        localStorage.setItem("direfencaEspacial", event.data.get("direfencaEspacial"));
+        localStorage.setItem("diferencaEspacial", event.data.get("direfencaEspacial"));
         localStorage.setItem("diferencaTemporal", event.data.get("diferencaTemporal"));
         localStorage.setItem("diferencaTriplo", event.data.get("diferencaTriplo"));
         localStorage.setItem("espacialPorFrame", event.data.get("espacialPorFrame"));
@@ -45,6 +45,7 @@ function configurarBenfod(document){
         localStorage.setItem("acumuladotriplo", event.data.get("acumuladotriplo"));
         localStorage.setItem("acumuladoEspacialPorNumero", event.data.get("acumuladoEspacialPorNumero"));
         localStorage.setItem("acumuladotemporalPorNumero", event.data.get("acumuladotemporalPorNumero"));
+        localStorage.setItem("acumuladotriploPorNumero", event.data.get("acumuladotriploPorNumero"));
       } 
     }
   });

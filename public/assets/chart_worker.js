@@ -5,6 +5,7 @@ TODO Colocar isso em um work para quan a atualização seja instantânea e não 
 
 //Função Responsável por desenhar o gráfico
 function drawChart() {
+  
   var dps = []; // dataPoints
   var chart = new CanvasJS.Chart("triplo", {
     title :{
@@ -21,55 +22,55 @@ function drawChart() {
     }]
   });
   
-  var resumo;
-  var resultado;
 //Avalia se há resultados no retorno da API Tracker
-if (typeof(Storage) !== "undefined") {
-  resumo = localStorage.getItem("diferencaTriplo");
-}
-console.log("Reumo: " + resumo)
-if(resumo){
-  //Copia o resultado que será usado para gerar o gráfico
-  resultado = resumo;
-  //Normaliza o resultado para a escala de 100%
-  resultado *= 100;
+if(typeof(Storage) !== "undefined"){
+  //Recupera principal valor para usar no gráfico
+  var principal =localStorage.getItem("diferencaTriplo")
+  console.log("Principal: " + principal)
+  //Normaliza o principal para a escala de 100%
+  principal *= 100;
+  var acumuladotriplo = localStorage.getItem("acumuladotriplo");
+  var listaAcumuladoTriploPorNumero = localStorage.getItem("acumuladotriploPorNumero");
   
-
-		if(resultado){
-      dps.shift();
-		dps.push({label: "Triplo", color: "green", x: 0, y: resultado});
-    dps.push({label: "Escalar Vertical", color: "green", x: 0, y: resultado});
-    dps.push(  {label: "Escalar Horizontal", color: "green", x: 0, y: resultado});
-    dps.push(  {label: "Temporal", color: "green", x: 0, y: resultado});
-    dps.push(  {label: "1", color: "blue", x: 1, y: 30.1});
-    dps.push( {label: "1", color: "red", x: 2, y: resultado/3});
-    dps.push(  {label: "2", color: "blue", x: 3, y: 17.6});
-    dps.push(  {label: "2", color: "red", x: 4, y: resultado/4});
-    dps.push(  {label: "3", color: "blue", x: 5, y: 12.5});
-      dps.push(  {label: "3", color: "red", x: 6, y: resultado/5});
-      dps.push(  {label: "4", color: "blue", x: 7, y: 9.7});
-      dps.push(  {label: "4", color: "red", x: 8, y: resultado/6});
-      dps.push(  {label: "5", color: "blue", x: 9, y: 7.9});
-      dps.push( {label: "5", color: "red", x: 10, y: resultado/7});
-      dps.push( {label: "6", color: "blue", x: 11, y: 6.7});
-      dps.push(  {label: "6", color: "red", x: 12, y: resultado/8});
-      dps.push(  {label: "7", color: "blue", x: 13, y: 5.8});
-      dps.push(  {label: "7", color: "red", x: 14, y: resultado/9});
-      dps.push(  {label: "8", color: "blue", x: 15, y: 5.1});
-      dps.push(  {label: "8", color: "red", x: 16, y: resultado/10});
-      dps.push(  {label: "9", color: "blue", x: 17, y: 4.6});
-      dps.push(  {label: "9", color: "red", x: 18, y: resultado/11});
-  } else {
-    dps.push({
-      label: "Triplo",
-			x: 50,
-			y: 0
+  if(principal && 
+    listaAcumuladoTriploPorNumero != null && 
+    listaAcumuladoTriploPorNumero != "undefined" && 
+    acumuladotriplo != null && 
+    acumuladotriplo != "undefined"){
+    
+    console.log("listaAcumuladoTriplo: " + listaAcumuladoTriploPorNumero);
+    var acumuladotriploPorNumero = listaAcumuladoTriploPorNumero.split(',').map(function(item) {
+      return parseInt(item, 10);
     });
-  }
-  chart.render();
+    dps.shift();
+		dps.push({label: "Triplo", color: "red", x: 0, y: localStorage.getItem("diferencaTriplo")*100});
+    dps.push({label: "Espacial", color: "green", x: 1, y: localStorage.getItem("diferencaEspacial")*100});
+    dps.push(  {label: "Temporal", color: "pink", x: 2, y: localStorage.getItem("diferencaTemporal")*100});
+    dps.push(  {label: "1", color: "blue", x: 3, y: 30.1});
+    dps.push( {label: "1", color: "red", x: 4, y: acumuladotriploPorNumero[0]/acumuladotriplo*100});
+    dps.push(  {label: "2", color: "blue", x: 5, y: 17.6});
+    dps.push(  {label: "2", color: "red", x: 6, y: acumuladotriploPorNumero[1]/acumuladotriplo*100});
+    dps.push(  {label: "3", color: "blue", x: 7, y: 12.5});
+      dps.push(  {label: "3", color: "red", x: 8, y: acumuladotriploPorNumero[2]/acumuladotriplo*100});
+      dps.push(  {label: "4", color: "blue", x: 9, y: 9.7});
+      dps.push(  {label: "4", color: "red", x: 10, y: acumuladotriploPorNumero[3]/acumuladotriplo*100});
+      dps.push(  {label: "5", color: "blue", x: 11, y: 7.9});
+      dps.push( {label: "5", color: "red", x: 12, y: acumuladotriploPorNumero[4]/acumuladotriplo*100});
+      dps.push( {label: "6", color: "blue", x: 13, y: 6.7});
+      dps.push(  {label: "6", color: "red", x: 14, y: acumuladotriploPorNumero[5]/acumuladotriplo*100});
+      dps.push(  {label: "7", color: "blue", x: 15, y: 5.8});
+      dps.push(  {label: "7", color: "red", x: 16, y: acumuladotriploPorNumero[6]/acumuladotriplo*100});
+      dps.push(  {label: "8", color: "blue", x: 17, y: 5.1});
+      dps.push(  {label: "8", color: "red", x: 18, y: acumuladotriploPorNumero[7]/acumuladotriplo*100});
+      dps.push(  {label: "9", color: "blue", x: 19, y: 4.6});
+      dps.push(  {label: "9", color: "red", x: 20, y: acumuladotriploPorNumero[8]/acumuladotriplo*100});
+      chart.render();
+  } 
 }
 };
-
+if (typeof(Storage) !== "undefined") {
+  localStorage.clear(); 
+}
 drawChart();
   //google.visualization.events.addListener(chart, 'ready', loadDataChart);
 //loadDataChart();
