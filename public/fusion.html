@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.menuitem {
+  padding: 8px;
+  margin-top: 7px;
+  border-bottom: 1px solid #AAA;
+  width: 100%;
+}
+.container {
+  flex: 50%;
+  float: left;
+  width: 50%;
+  padding: 0 20px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.video {
+  width: 100%;
+  height: auto;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+
+.canvas {
+  width: 100%;
+  height: auto;
+  position: relative;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.main {
+  block-size: 100%;
+}
+
+.blocView {
+  display: absolute;
+}
+
+@media (max-width:800px) {
+  /* For mobile phones: */
+  .container, .main {
+    flex-direction: column;
+  }
+}
+</style>
+
+<meta charset="utf-8">
+  <title>fusion</title>
+  <!--<link rel="stylesheet" href="assets/demo.css">
+  <script src="../node_modules/dat.gui/build/dat.gui.min.js"></script>
+  <script src="assets/stats.min.js"></script>
+  <script src="assets/color_camera_gui.js"></script>-->
+  <script src="assets/tracking-min.js"></script>
+  <script src="assets/canvasjs.min.js"></script>
+  <script src="assets/fusion_worker.js"></script>
+  <!--Controles de Som ----------------------------------------------------------->
+  <script >
+  //TODO Função que incializa controles da API trancking que ainda não está sendo usado
+  //initGUIControllers(myTracker);
+  </script>
+  <!------------------------------------------------------------- Controles de Som-->
+  
+</head>
+<body style="font-family:Verdana;">
+  <center>
+    </div>
+    <div id="blocButtons" > 
+      <div class="menuitem"> 
+        <div class="caption">
+          <input type="file" id="fileInputVideo" name="file" value="Upload" placeholder="Video" />
+        </div>
+      </div>
+    </div>
+    <div id="blocControllers" style="display: none"> 
+      <div class="menuitem"> 
+          <div id="volume" ></div>
+        <b id="output"></b> <input id="slider" type="range" min="0" max="100"  step="1" value="0">
+      </div>
+    </div>
+    </div>
+  </center>
+  <div id="blocView" class="blocView"> 
+      <div class="container" width="400" height="300" >
+          <video  class="video" id="myCam" width="400" height="300" preload autoplay loop muted ></video>
+          <canvas class="canvas" id="canvasCam"  width="400" height="300" >
+      </div>
+      <div class="container" width="400" height="300" >
+        <video  class="video" id="myVideo" width="400" height="300" preload autoplay loop muted ></video>
+    </div>
+      <div class="main" >
+          <div id="triplo" style="display: block; height: 200px; width: 100%;" ></div>
+      </div>
+  </div>
+</body>
+
+<script>
+  configurarFusion(document);
+</script>
+</html>

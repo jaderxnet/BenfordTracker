@@ -119,8 +119,8 @@
           posY[index] = 300;
          }
          if(!fatorX[index] && !fatorY[index]){
-          fatorX[index] = (1 - Math.random()*2) * 10;
-          fatorY[index] = (1 - Math.random()*2) * 10;
+          fatorX[index] = (1 - Math.random()*2) * 3;
+          fatorY[index] = (1 - Math.random()*2) * 3;
          }
          if(posX[index] > 600 || posX[index] < 50){
             fatorX[index] *= -1;
@@ -199,7 +199,7 @@
       });
     };
 
-    setInterval(animar, 100);
+    setInterval(animar, 15);
   </script>
 
 </body>
