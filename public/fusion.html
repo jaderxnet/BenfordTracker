@@ -13,17 +13,33 @@
   border-bottom: 1px solid #AAA;
   width: 100%;
 }
-.container {
-  flex: 50%;
+.containerVideo {
+  height: 100%;
   float: left;
-  width: 50%;
   padding: 0 20px;
   margin: 0 auto;
   position: relative;
 }
 
-.video {
+.containerCanvas {
+  float: left;
   width: 100%;
+  padding: 0 20px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.videoleft {
+  display: inline-block;
+  width: 45%;
+  height: auto;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+.videoright {
+  display: inline-block;
+  width: 45%;
   height: auto;
   position: relative;
   top: 0;
@@ -33,7 +49,7 @@
 .canvas {
   width: 100%;
   height: auto;
-  position: relative;
+  position: absolute;
   top: 0;
   left: 0;
   z-index: 10;
@@ -89,19 +105,21 @@
       </div>
     </div>
     </div>
-  </center>
+  
   <div id="blocView" class="blocView"> 
-      <div class="container" width="400" height="300" >
-          <video  class="video" id="myCam" width="400" height="300" preload autoplay loop muted ></video>
-          <canvas class="canvas" id="canvasCam"  width="400" height="300" >
+      <div class="containerVideo" width="400" height="300" >
+          <video  class="videoleft" id="myCam" width="400" height="300" preload autoplay loop muted ></video>
+          <video  class="videoright" id="myVideo" width="400" height="300" preload autoplay loop muted ></video>
       </div>
-      <div class="container" width="400" height="300" >
-        <video  class="video" id="myVideo" width="400" height="300" preload autoplay loop muted ></video>
+      <div class="containerCanvas" width="400" height="300" >
+        <canvas class="canvas" id="canvasVideo"  width="350" height="250" ></canvas>
+        <canvas class="canvas" id="canvasCam"  width="350" height="250" ></canvas>
     </div>
       <div class="main" >
           <div id="triplo" style="display: block; height: 200px; width: 100%;" ></div>
       </div>
   </div>
+</center>
 </body>
 
 <script>
