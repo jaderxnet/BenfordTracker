@@ -1,29 +1,29 @@
-[debug] [2020-10-09T00:55:02.478Z] ----------------------------------------------------------------------
-[debug] [2020-10-09T00:55:02.480Z] Command:       /usr/local/bin/firebase /Users/jaderxnet/.cache/firebase/tools/lib/node_modules/firebase-tools/lib/bin/firebase serve
-[debug] [2020-10-09T00:55:02.480Z] CLI Version:   7.7.0
-[debug] [2020-10-09T00:55:02.480Z] Platform:      darwin
-[debug] [2020-10-09T00:55:02.480Z] Node Version:  v10.15.3
-[debug] [2020-10-09T00:55:02.484Z] Time:          Thu Oct 08 2020 21:55:02 GMT-0300 (GMT-03:00)
-[debug] [2020-10-09T00:55:02.484Z] ----------------------------------------------------------------------
-[debug] [2020-10-09T00:55:02.484Z] 
-[debug] [2020-10-09T00:55:02.494Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2020-10-09T00:55:02.494Z] > authorizing via signed-in user
-[debug] [2020-10-09T00:55:02.494Z] [iam] checking project benford-63e73 for permissions ["firebase.projects.get"]
-[debug] [2020-10-09T00:55:02.495Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
-[debug] [2020-10-09T00:55:02.495Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+[debug] [2020-10-23T19:02:53.984Z] ----------------------------------------------------------------------
+[debug] [2020-10-23T19:02:53.986Z] Command:       /usr/local/bin/firebase /Users/jaderxnet/.cache/firebase/tools/lib/node_modules/firebase-tools/lib/bin/firebase serve
+[debug] [2020-10-23T19:02:53.986Z] CLI Version:   7.7.0
+[debug] [2020-10-23T19:02:53.986Z] Platform:      darwin
+[debug] [2020-10-23T19:02:53.986Z] Node Version:  v10.15.3
+[debug] [2020-10-23T19:02:53.991Z] Time:          Fri Oct 23 2020 16:02:53 GMT-0300 (GMT-03:00)
+[debug] [2020-10-23T19:02:53.991Z] ----------------------------------------------------------------------
+[debug] [2020-10-23T19:02:53.991Z] 
+[debug] [2020-10-23T19:02:54.002Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-10-23T19:02:54.003Z] > authorizing via signed-in user
+[debug] [2020-10-23T19:02:54.003Z] [iam] checking project benford-63e73 for permissions ["firebase.projects.get"]
+[debug] [2020-10-23T19:02:54.004Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2020-10-23T19:02:54.004Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
  <request body omitted>
-[debug] [2020-10-09T00:55:02.953Z] <<< HTTP RESPONSE 200
-[debug] [2020-10-09T00:55:02.966Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/benford-63e73:testIamPermissions  
+[debug] [2020-10-23T19:02:54.485Z] <<< HTTP RESPONSE 200
+[debug] [2020-10-23T19:02:54.500Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/benford-63e73:testIamPermissions  
 
-[debug] [2020-10-09T00:55:04.202Z] <<< HTTP RESPONSE 200
-[debug] [2020-10-09T00:55:04.203Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/benford-63e73  
+[debug] [2020-10-23T19:02:55.738Z] <<< HTTP RESPONSE 200
+[debug] [2020-10-23T19:02:55.739Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/benford-63e73  
  
-[debug] [2020-10-09T00:55:05.518Z] <<< HTTP RESPONSE 200
+[debug] [2020-10-23T19:02:57.058Z] <<< HTTP RESPONSE 200
 [info] 
 [info] === Serving from '/Users/jaderxnet/Documents/GitHub/BenfordTracker'...
 [info] 
-[debug] [2020-10-09T00:55:05.520Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/benford-63e73/webApps/-/config  
+[debug] [2020-10-23T19:02:57.061Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/benford-63e73/webApps/-/config  
  
-[debug] [2020-10-09T00:55:07.261Z] <<< HTTP RESPONSE 200
+[debug] [2020-10-23T19:02:57.793Z] <<< HTTP RESPONSE 200
 [info] i  hosting: Serving hosting files from: public
 [info] ✔  hosting: Local server: http://localhost:5000
