@@ -1,6 +1,14 @@
+/*
+Melhorias:
+1 - Adicionae mais cores;
+2 - Relacionar vídeo a uma cor;
+3 - Ocultar vídeos e continuar visualizando  fusion;
+4 - Adicionar áudio;
+5 - Redimensionar caixa virtual para a tela inteira;
+6 - Ocultar vídeo durante a apresentação;
+*/
 
-
-var opacidade;
+var opacidade = [0,0,0,0];
 
 function configurarFusion(document){
   if (typeof(Storage) !== "undefined") {
@@ -14,9 +22,26 @@ function configurarFusion(document){
   FusionTracker.prototype.constructor = FusionTracker;
 
   var slider = document.getElementById("slider");
+  var slider1 = document.getElementById("slider1");
+  var slider2 = document.getElementById("slider2");
+  var slider3 = document.getElementById("slider3");
+  
+  
   slider.oninput = function() {
-    output.innerHTML = "Volume: "+new Intl.NumberFormat('en-IN', { minimumSignificantDigits: 3 }).format(this.value);
-    opacidade = this.value;
+    output.innerHTML = "Camera: "+new Intl.NumberFormat('en-IN', { minimumSignificantDigits: 3 }).format(this.value);
+    opacidade[0] = this.value;
+  }
+  slider1.oninput = function() {
+    output1.innerHTML = "Video 1: "+new Intl.NumberFormat('en-IN', { minimumSignificantDigits: 3 }).format(this.value);
+    opacidade[1] = this.value;
+  }
+  slider2.oninput = function() {
+    output2.innerHTML = "Video 2: "+new Intl.NumberFormat('en-IN', { minimumSignificantDigits: 3 }).format(this.value);
+    opacidade[2] = this.value;
+  }
+  slider3.oninput = function() {
+    output3.innerHTML = "Video 3: "+new Intl.NumberFormat('en-IN', { minimumSignificantDigits: 3 }).format(this.value);
+    opacidade[3] = this.value;
   }
 
   // variavel para armazenar o elemento canvas
@@ -24,15 +49,28 @@ function configurarFusion(document){
   // Variável para armazenar  o contexto 2D
   var context = canvas.getContext('2d');
   // variavel para armazenar o elemento canvas
-  var canvas2 = document.getElementById('canvasVideo');
+  var canvasVideo = document.getElementById('canvasVideo');
   // Variável para armazenar  o contexto 2D
-  var context2 = canvas2.getContext('2d');
+  var contextVideo = canvasVideo.getContext('2d');
+
+    // variavel para armazenar o elemento canvas
+  var canvasVideo1 = document.getElementById('canvasVideo1');
+    // Variável para armazenar  o contexto 2D
+  var contextVideo1 = canvasVideo1.getContext('2d');
+
+      // variavel para armazenar o elemento canvas
+  var canvasVideo2 = document.getElementById('canvasVideo2');
+  // Variável para armazenar  o contexto 2D
+  var contextVideo2 = canvasVideo2.getContext('2d');
+
 
 
   // Instancia da classe de Benford
   // Instancia da classe de Benford
   var myTrackerCam = new FusionTracker("webcam");
   var myTrackerVideo = new FusionTracker("video");
+  var myTrackerVideo1 = new FusionTracker("video1");
+  var myTrackerVideo2 = new FusionTracker("video2");
 
   
 
@@ -53,14 +91,25 @@ function configurarFusion(document){
       // set our buffer as source
 
       idata.data.set(event.data.get("exemplo"));
-
+      //console.log(" Camera: " + event.data.get("desccamera"));
       // update canvas with new data
-      if(event.data.get("desccamera")== "webcam"){
-        context.putImageData(idata, 0, 0)
-      } else {
-        context2.putImageData(idata, 0, 0)
+      switch (event.data.get("desccamera")) {
+        case "webcam":
+          context.putImageData(idata, 0, 0);
+          break;
+        case "video":
+          contextVideo.putImageData(idata, 0, 0);
+          break;
+        case "video1":
+          contextVideo1.putImageData(idata, 0, 0);
+          break;
+        case "video2":
+          contextVideo2.putImageData(idata, 0, 0);
+          break;
+        default:
+          break;
       }
-
+      
       // Check browser support
       if (typeof(Storage) !== "undefined") {
         // Storage
@@ -72,28 +121,55 @@ function configurarFusion(document){
   // Chamada da função principal que atualiza os dados do BenfordTracker pela API Tracking
   myTrackerCam.on('track', traque);
   myTrackerVideo.on('track', traque);
+  myTrackerVideo1.on('track', traque);
+  myTrackerVideo2.on('track', traque);
   // Controes de Entrada --------------------------------------------------------
   //Exibir e processar o video da câmera  function capturaVideoWebCam
 
   //Exibir e processar video do armazenamento local a partir de janela de acesso a arquivos
-  let inputElementVideo2 = document.getElementById('fileInputVideo');
+  let inputElementVideo = document.getElementById('fileInputVideo');
+  let inputElementVideo1 = document.getElementById('fileInputVideo1');
+  let inputElementVideo2 = document.getElementById('fileInputVideo2');
   // A partir da seleção de um arquivo como entrada para inputElementVideo2 lança um evento
-  inputElementVideo2.addEventListener('change', (e) => {
-    // Elemento de vídeo é colocado em uma variavel
-    let videoTag = document.getElementById('myVideo');
-    //O evento chamado dá início do processamento do arquivo de vídeo selecionado
-    videoTag.src=URL.createObjectURL(e.target.files[0]);
-    // O vídeo é reproduzido no canvas
-    videoTag.play();
-    //Ativa interface 
-    activeTracking('#myVideo', myTrackerVideo);
-    //Fim do comando de disparo do evento
-  }, false);
+function vidoePlay(e, video, myTracker){
+  // Elemento de vídeo é colocado em uma variavel
+  let videoTag = document.getElementById(video);
+  //O evento chamado dá início do processamento do arquivo de vídeo selecionado
+  videoTag.src=URL.createObjectURL(e.target.files[0]);
+  // O vídeo é reproduzido no canvas
+  videoTag.play();
+  //Ativa interface 
+  activeTracking(videoTag, myTracker);
+  //Fim do comando de disparo do evento
+}
+
+  inputElementVideo.addEventListener('change', (e) => vidoePlay(e, 'myVideo', myTrackerVideo), false);
+  inputElementVideo1.addEventListener('change', (e) => vidoePlay(e, 'myVideo1', myTrackerVideo1), false);
+  inputElementVideo2.addEventListener('change', (e) => vidoePlay(e, 'myVideo2', myTrackerVideo2), false);
 
   activeTracking('#myCam', myTrackerCam, { camera: true });
+  tracking.ColorTracker.registerColor('green', function(r, g, b) {
+    if (r < 50 && g > 130 && b < 50) {
+      return true;
+    }
+    return false;
+  });
+  tracking.ColorTracker.registerColor('blue', function(r, g, b) {
+    if (r < 50 && b > 130 && g < 50) {
+      return true;
+    }
+    return false;
+  });
 
-  var trackerCor = new tracking.ColorTracker(['magenta', 'cyan', 'yellow']);
-  trackerCor.setMinDimension(20);
+  tracking.ColorTracker.registerColor('red', function(r, g, b) {
+    if (b < 50 && r > 130 && g < 50) {
+      return true;
+    }
+    return false;
+  });
+
+  var trackerCor = new tracking.ColorTracker(['yellow','blue', 'red', 'green']);
+  trackerCor.setMinDimension(10);
 
     
     trackerCor.on('track', function(event) {
@@ -103,11 +179,13 @@ function configurarFusion(document){
         if (rect.color === 'custom') {
           rect.color = tracker.customColor;
         }
-        if(rect.y > 0){
-          opacidade = rect.y%100;
-        }    
+       
+        opacidade[0] = rect.x%100 + rect.y%100;
+        opacidade[1] = rect.x%100 + (100-rect.y%100);
+        opacidade[2] = (100-rect.x%100) + (rect.y%100);
+        opacidade[3] = (100-rect.x%100) + (100- rect.y%100);
 
-        context.strokeStyle = 'orange';
+        context.strokeStyle = rect.color;
         context.strokeRect(rect.x, rect.y, rect.width, rect.height);
         context.font = '11px Helvetica';
         context.fillStyle = "#fff";
@@ -177,19 +255,37 @@ representada na matriz.*/
     //processarFrame(pixels, width, height);
     /* Essa função calcula a ocorrencia acumulada e outros dados de cada numero na fila de ocorrencia e armzena
     tudo em um mapa de resultados  */
-
+    //console.log(desccamera);
     for(var i = 3; i < pixels.length; i=i+4){
-      if(opacidade){
-        let opa;
+        // update canvas with new data
+        switch (desccamera) {
+          case "webcam":
+            pixels[i] = (255 - (2.55*opacidade[0]));
+            break;
+          case "video":
+            pixels[i] = (255 - (2.55*opacidade[1]));
+            break;
+          case "video1":
+            pixels[i] = (255 - (2.55*opacidade[2]));
+            //console.log(" CAM: " + desccamera);
+          break;
+          case "video2":
+            pixels[i] = (255 - (2.55*opacidade[3]));
+          break;
+          default:
+            break;
+        }
+
+
+        /*
         if(desccamera=="webcam"){
           opa = (255 - (2.55*opacidade));
           pixels[i] = opa;
         } else {
           opa = (2.55*opacidade);
           pixels[i] = opa;
-        }
+        }*/
         //console.log("Opacidade: " + opacidade + " Desccamera: " + desccamera + " OPA: " + opa);
-      } 
     }
 
     let results = new Map();

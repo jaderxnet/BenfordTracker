@@ -95,29 +95,35 @@
       <div class="menuitem"> 
         <div class="caption">
           <input type="file" id="fileInputVideo" name="file" value="Upload" placeholder="Video" />
+          <input type="file" id="fileInputVideo1" name="file" value="Upload" placeholder="Video" />
+          <input type="file" id="fileInputVideo2" name="file" value="Upload" placeholder="Video" />
         </div>
+        
       </div>
     </div>
     <div id="blocControllers" style="display: none"> 
       <div class="menuitem"> 
-          <div id="volume" ></div>
         <b id="output"></b> <input id="slider" type="range" min="0" max="100"  step="1" value="0">
+        <b id="output1"></b> <input id="slider1" type="range" min="0" max="100"  step="1" value="0">
+        <b id="output2"></b> <input id="slider2" type="range" min="0" max="100"  step="1" value="0">
+        <b id="output3"></b> <input id="slider3" type="range" min="0" max="100"  step="1" value="0">
       </div>
     </div>
     </div>
   
   <div id="blocView" class="blocView"> 
       <div class="containerVideo" width="400" height="300" >
-          <video  class="videoleft" id="myCam" width="400" height="300" preload autoplay loop muted ></video>
-          <video  class="videoright" id="myVideo" width="400" height="300" preload autoplay loop muted ></video>
+          <video  class="video" id="myCam" width="400" height="300" preload autoplay loop muted ></video>
+          <video  class="video" id="myVideo" width="400" height="300" preload autoplay loop muted ></video>
+          <video  class="video" id="myVideo1" width="400" height="300" preload autoplay loop muted ></video>
+          <video  class="video" id="myVideo2" width="400" height="300" preload autoplay loop muted ></video>
       </div>
       <div class="containerCanvas" width="400" height="300" >
+        <canvas class="canvas" id="canvasVideo2"  width="350" height="250" ></canvas>
+        <canvas class="canvas" id="canvasVideo1"  width="350" height="250" ></canvas>
         <canvas class="canvas" id="canvasVideo"  width="350" height="250" ></canvas>
         <canvas class="canvas" id="canvasCam"  width="350" height="250" ></canvas>
     </div>
-      <div class="main" >
-          <div id="triplo" style="display: block; height: 200px; width: 100%;" ></div>
-      </div>
   </div>
 </center>
 </body>
