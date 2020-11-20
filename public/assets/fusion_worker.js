@@ -8,6 +8,8 @@ Melhorias:
 6 - Ocultar vídeo durante a apresentação;
 7 - Fazer transmissão;
 8 - Adicionar Microfone;
+9 - Adicionar Câmeras
+10 - Deixar o espaço de identificação da cor proporcional a tela da câmera;
 */
 
 var opacidade = [0,0,0,0];
@@ -218,7 +220,7 @@ function hideDiv(div) {
   //Se a div estiver desativada
   if (x.style.display === "none") {
     //Ativa a div
-    x.style.display = "flex";
+    x.style.display = "block";
     //Se não 
   } else {
     //Desativa a div
