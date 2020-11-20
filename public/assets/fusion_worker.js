@@ -1,11 +1,13 @@
 /*
 Melhorias:
-1 - Adicionae mais cores;
+1 - Adicionae mais cores; OK 
 2 - Relacionar vídeo a uma cor;
-3 - Ocultar vídeos e continuar visualizando  fusion;
-4 - Adicionar áudio;
+3 - Ocultar vídeos e continuar visualizando  fusion; OK
+4 - Adicionar áudio; OK
 5 - Redimensionar caixa virtual para a tela inteira;
 6 - Ocultar vídeo durante a apresentação;
+7 - Fazer transmissão;
+8 - Adicionar Microfone;
 */
 
 var opacidade = [0,0,0,0];
@@ -101,7 +103,7 @@ function configurarFusion(document){
           contextVideo.putImageData(idata, 0, 0);
           break;
         case "video1":
-          contextVideo1.putImageData(idata, 0, 0);
+          myCam.putImageData(idata, 0, 0);
           break;
         case "video2":
           contextVideo2.putImageData(idata, 0, 0);
@@ -203,14 +205,15 @@ function activeTracking(div, myTracker, camera) {
   tracking.track(div, myTracker, camera);
   //Exibe o bloco de video e gráfico
   //hideDiv("blocButtons");
-  hideDiv("blocView", true);
-  hideDiv("blocControllers", true);
+  //hideDiv("blocView");
+  //hideDiv("blocControllers");
 }
 
 
 //Funcão para esconder uma div qualquer
-function hideDiv(div, force) {
+function hideDiv(div) {
   //Busca a div no documento Html
+  console.log(div);
   var x = document.getElementById(div);
   //Se a div estiver desativada
   if (x.style.display === "none") {
@@ -218,7 +221,6 @@ function hideDiv(div, force) {
     x.style.display = "flex";
     //Se não 
   } else {
-    if(force) return;
     //Desativa a div
     x.style.display = "none";
   }
