@@ -105,7 +105,7 @@ function configurarFusion(document){
           contextVideo.putImageData(idata, 0, 0);
           break;
         case "video1":
-          myCam.putImageData(idata, 0, 0);
+          contextVideo1.putImageData(idata, 0, 0);
           break;
         case "video2":
           contextVideo2.putImageData(idata, 0, 0);
@@ -183,11 +183,17 @@ function vidoePlay(e, video, myTracker){
         if (rect.color === 'custom') {
           rect.color = tracker.customColor;
         }
-       
-        opacidade[0] = rect.x%100 + rect.y%100;
-        opacidade[1] = rect.x%100 + (100-rect.y%100);
-        opacidade[2] = (100-rect.x%100) + (rect.y%100);
-        opacidade[3] = (100-rect.x%100) + (100- rect.y%100);
+
+        let base = 80;
+        let xProporcional = rect.x/canvas.width;
+        let yProporcional = rect.y/canvas.height;
+        
+
+        
+        opacidade[0] = xProporcional*base%100 + yProporcional*base%100;
+        opacidade[1] = (100-xProporcional*base%100) + (yProporcional*base%100);
+        opacidade[2] = xProporcional*base%100 + (100-yProporcional*base%100);
+        opacidade[3] = (100-xProporcional*base%100) + (100- yProporcional*base%100);
 
         context.strokeStyle = rect.color;
         context.strokeRect(rect.x, rect.y, rect.width, rect.height);
