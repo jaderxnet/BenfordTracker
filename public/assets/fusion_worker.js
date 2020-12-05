@@ -2,14 +2,14 @@
 Melhorias:
 1 - Adicionae mais cores; OK 
 2 - Relacionar vídeo a uma cor;
-3 - Ocultar vídeos e continuar visualizando  fusion; OK
+3 - Ocultar vídeos; ok
+   b) continuar visualizando fusion; 
 4 - Adicionar áudio; OK
-5 - Redimensionar caixa virtual para a tela inteira;
-6 - Ocultar vídeo durante a apresentação;
+5 - Redimensionar caixa virtual para a tela inteira; Ok
+6 - Ocultar vídeo durante a apresentação; OK
 7 - Fazer transmissão;
 8 - Adicionar Microfone;
 9 - Adicionar Câmeras
-10 - Deixar o espaço de identificação da cor proporcional a tela da câmera;
 */
 
 var opacidade = [0,0,0,0];

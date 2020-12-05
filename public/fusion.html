@@ -15,6 +15,7 @@
 }
 .containerVideo {
   height: 100%;
+  width: 100%;
   float: left;
   padding: 0 20px;
   margin: 0 auto;
@@ -69,6 +70,27 @@
     flex-direction: column;
   }
 }
+
+ul.video {
+  list-style-type: none;
+  position: relative;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 0px;
+  display: inline-block;
+}
+
+li.video {
+  list-style-type: none;
+  position: relative;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 0px;
+}
 </style>
 
 <meta charset="utf-8">
@@ -90,34 +112,41 @@
 </head>
 <body style="font-family:Verdana;">
   <center>
-    </div>
-    <div id="blocButtons" > 
-      <div class="menuitem"> 
-        <div class="caption">
-          <input type="file" id="fileInputVideo" name="file" value="Upload" placeholder="Video" />
-          <input type="file" id="fileInputVideo1" name="file" value="Upload" placeholder="Video" />
-          <input type="file" id="fileInputVideo2" name="file" value="Upload" placeholder="Video" />
-        </div>
-        
-      </div>
-    </div>
-    <div id="blocControllers" style="display: none"> 
-      <div class="menuitem"> 
-        <b id="output"></b> <input id="slider" type="range" min="0" max="100"  step="1" value="0">
-        <b id="output1"></b> <input id="slider1" type="range" min="0" max="100"  step="1" value="0">
-        <b id="output2"></b> <input id="slider2" type="range" min="0" max="100"  step="1" value="0">
-        <b id="output3"></b> <input id="slider3" type="range" min="0" max="100"  step="1" value="0">
-      </div>
-    </div>
-    </div>
-  
   <div id="blocView" class="blocView"> 
-    <button onclick="hideDiv('containerVideo')">Esconder</button>
+    <button onclick="hideDiv('containerVideo')">Esconder Tudo</button>
       <div class="containerVideo" id="containerVideo" width="400" height="300" >
-          <video  class="video" id="myCam" width="400" height="300" preload autoplay loop muted ></video>
-          <video  class="video" id="myVideo" width="400" height="300" preload autoplay loop muted ></video>
-          <video  class="video" id="myVideo1" width="400" height="300" preload autoplay loop muted ></video>
-          <video  class="video" id="myVideo2" width="400" height="300" preload autoplay loop muted ></video>
+        <ul class="video">
+          <div id="camera">
+            <li><video   id="myCam" width="400" height="300" preload autoplay loop muted ></video></li>
+            <li>Opções de camera</li>
+            <li><b id="output"></b> <input id="slider" type="range" min="0" max="100"  step="1" value="0"></li>
+          </div>
+          <li><button onclick="hideDiv('camera')">Esconder Camera</button></li>
+        </ul>
+        <ul class="video" >
+          <div id="video1">
+            <li><video  id="myVideo" width="400" height="300" preload autoplay loop muted ></video></li>
+            <li><input type="file" id="fileInputVideo" name="file" value="Upload" placeholder="Video" /></li>
+            <li><b id="output"></b> <input id="slider1" type="range" min="0" max="100"  step="1" value="0"></li>
+          </div>
+          <li><button onclick="hideDiv('video1')">Esconder Video 1</button></li>
+        </ul>
+        <ul class="video" >
+          <div id="video2">
+            <li><video  id="myVideo1" width="400" height="300" preload autoplay loop muted ></video></li>
+            <li><input type="file" id="fileInputVideo1" name="file" value="Upload" placeholder="Video" /></li>
+            <li><b id="output"></b> <input id="slider2" type="range" min="0" max="100"  step="1" value="0"></li>
+          </div>
+          <li><button onclick="hideDiv('video2')">Esconder Video 2</button></li>
+        </ul>
+        <ul  class="video" >
+          <div id="video3">
+            <li><video id="myVideo2" width="400" height="300" preload autoplay loop muted ></video></li>
+            <li><input type="file" id="fileInputVideo2" name="file" value="Upload" placeholder="Video" /></li>
+            <li><b id="output"></b> <input id="slider3" type="range" min="0" max="100"  step="1" value="0"></li>
+          </div>
+          <li><button onclick="hideDiv('video3')">Esconder Video 3</button></li>
+        </ul>
       </div>
       <div class="containerCanvas" width="400" height="300" >
         <canvas class="canvas" id="canvasVideo2"  width="350" height="250" ></canvas>
