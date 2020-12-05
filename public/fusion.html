@@ -116,36 +116,36 @@ li.video {
     <button onclick="hideDiv('containerVideo')">Esconder Tudo</button>
       <div class="containerVideo" id="containerVideo" width="400" height="300" >
         <ul class="video">
-          <div id="camera">
+          <div id="camera" >
             <li><video   id="myCam" width="400" height="300" preload autoplay loop muted ></video></li>
             <li>Opções de camera</li>
             <li><b id="output"></b> <input id="slider" type="range" min="0" max="100"  step="1" value="0"></li>
           </div>
-          <li><button onclick="hideDiv('camera')">Esconder Camera</button></li>
+          <li><button onclick="hideDiv('camera')">Camera</button></li>
         </ul>
         <ul class="video" >
-          <div id="video1">
+          <div id="video1" style="display: none;">
             <li><video  id="myVideo" width="400" height="300" preload autoplay loop muted ></video></li>
             <li><input type="file" id="fileInputVideo" name="file" value="Upload" placeholder="Video" /></li>
             <li><b id="output"></b> <input id="slider1" type="range" min="0" max="100"  step="1" value="0"></li>
           </div>
-          <li><button onclick="hideDiv('video1')">Esconder Video 1</button></li>
+          <li><button onclick="hideDiv('video1')">Video 1</button></li>
         </ul>
         <ul class="video" >
-          <div id="video2">
+          <div id="video2" style="display: none;">
             <li><video  id="myVideo1" width="400" height="300" preload autoplay loop muted ></video></li>
             <li><input type="file" id="fileInputVideo1" name="file" value="Upload" placeholder="Video" /></li>
             <li><b id="output"></b> <input id="slider2" type="range" min="0" max="100"  step="1" value="0"></li>
           </div>
-          <li><button onclick="hideDiv('video2')">Esconder Video 2</button></li>
+          <li><button onclick="hideDiv('video2')">Video 2</button></li>
         </ul>
         <ul  class="video" >
-          <div id="video3">
+          <div id="video3" style="display: none;">
             <li><video id="myVideo2" width="400" height="300" preload autoplay loop muted ></video></li>
             <li><input type="file" id="fileInputVideo2" name="file" value="Upload" placeholder="Video" /></li>
             <li><b id="output"></b> <input id="slider3" type="range" min="0" max="100"  step="1" value="0"></li>
           </div>
-          <li><button onclick="hideDiv('video3')">Esconder Video 3</button></li>
+          <li><button onclick="hideDiv('video3')">Video 3</button></li>
         </ul>
       </div>
       <div class="containerCanvas" width="400" height="300" >
