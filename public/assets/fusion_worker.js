@@ -131,27 +131,42 @@ function configurarFusion(document){
   //Exibir e processar o video da câmera  function capturaVideoWebCam
 
   //Exibir e processar video do armazenamento local a partir de janela de acesso a arquivos
+  let inputElementCamera = document.getElementById('myCam');
   let inputElementVideo = document.getElementById('fileInputVideo');
   let inputElementVideo1 = document.getElementById('fileInputVideo1');
   let inputElementVideo2 = document.getElementById('fileInputVideo2');
   // A partir da seleção de um arquivo como entrada para inputElementVideo2 lança um evento
-function vidoePlay(e, video, myTracker){
+function vidoePlay(e, video, myTracker, camera){
   // Elemento de vídeo é colocado em uma variavel
   let videoTag = document.getElementById(video);
-  //O evento chamado dá início do processamento do arquivo de vídeo selecionado
-  videoTag.src=URL.createObjectURL(e.target.files[0]);
-  // O vídeo é reproduzido no canvas
-  videoTag.play();
-  //Ativa interface 
-  activeTracking(videoTag, myTracker);
+    
+  if(camera){
+    activeTracking(videoTag, myTracker);
+  } else {
+    //O evento chamado dá início do processamento do arquivo de vídeo selecionado
+    videoTag.src=URL.createObjectURL(e.target.files[0]);
+    // O vídeo é reproduzido no canvas
+    videoTag.play();
+    //Ativa interface 
+    activeTracking(videoTag, myTracker);
+  }
   //Fim do comando de disparo do evento
 }
 
-  inputElementVideo.addEventListener('change', (e) => vidoePlay(e, 'myVideo', myTrackerVideo), false);
-  inputElementVideo1.addEventListener('change', (e) => vidoePlay(e, 'myVideo1', myTrackerVideo1), false);
-  inputElementVideo2.addEventListener('change', (e) => vidoePlay(e, 'myVideo2', myTrackerVideo2), false);
-
-  activeTracking('#myCam', myTrackerCam, { camera: true });
+  //inputElementCamera.addEventListener('play', (e) => vidoePlay(e, 'myCam', myTrackerCam, true), false);
+  inputElementVideo.addEventListener('change', (e) => vidoePlay(e, 'myVideo', myTrackerVideo, false), false);
+  inputElementVideo1.addEventListener('change', (e) => vidoePlay(e, 'myVideo1', myTrackerVideo1, false), false);
+  inputElementVideo2.addEventListener('change', (e) => vidoePlay(e, 'myVideo2', myTrackerVideo2, false), false);
+  inputElementCamera.addEventListener('play', function () {
+    var $this = this; //cache
+    (function loop() {
+        if (!$this.paused && !$this.ended) {
+            context.drawImage($this, 0, 0);
+            setTimeout(loop, 1000 / 30); // drawing at 30fps
+        }
+    })();
+}, 0);
+  activeTracking('#myCam', myTrackerCam, { video: true });
   tracking.ColorTracker.registerColor('green', function(r, g, b) {
     if (r < 50 && g > 130 && b < 50) {
       return true;
