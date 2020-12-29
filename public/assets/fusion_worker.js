@@ -220,9 +220,32 @@ function activeTracking(div, myTracker, camera) {
 
 //Funcão para esconder uma div qualquer
 function hideDiv(div) {
-  //Busca a div no documento Html
-  console.log(div);
   var x = document.getElementById(div);
+  //Busca a div no documento Html
+  if(x.id == 'camera' && x.style.position != "absolute"){
+    var y = document.getElementById('myVideo');
+    x.style.position = "absolute";
+    x.style.marginTop = "300px";
+    y.style.padding = "100px";
+    return;
+  }
+
+  if(x.id == 'camera' && x.style.position == "absolute"){
+    var y = document.getElementById('myVideo');
+    x.style.position = "";
+    x.style.marginTop = "";
+    y.style.padding = "";
+    return;
+  }
+  
+  if(x.id == 'containerVideo'){
+    hideDiv('camera');
+    hideDiv('video1');
+    hideDiv('video2');
+    hideDiv('video3');
+    return;
+  }
+  
   //Se a div estiver desativada
   if (x.style.display === "none") {
     //Ativa a div
